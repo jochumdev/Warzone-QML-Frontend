@@ -51,6 +51,9 @@ Item {
     property real position
     property real pageSize
     property variant orientation : Qt.Vertical
+    property bool showAlways     : true
+
+    opacity: scrollBar.showAlways ? 1 : (scrollBar.pageSize == 1 ? 0 : 1)
 
     // A light, semi-transparent background
     Rectangle {

@@ -1,5 +1,5 @@
 import QtQuick 1.0
-import "../widgets" as Widgets
+import "../../widgets" as Widgets
 
 Item {
     id: optionsMenu

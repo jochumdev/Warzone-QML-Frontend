@@ -11,6 +11,26 @@ Item {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
 
+
+    property string map         :       "Rush-T1"
+
+    function createMenu(name)
+    {
+        try {
+            var myComponent = Qt.createComponent(Support.hostGameList[name][0]);
+        }
+        catch(e) { console.log("Failed to create hostgame subwidget: " + name); return; }
+
+        if (myComponent == null || myComponent.status == Component.Error)
+        {
+            console.log(myComponent.errorString());
+            return;
+        }
+
+        myComponent.createObject(rightBox)
+        rightSideText.text = Support.hostGameList[name][1]
+    }
+
     // Left sideText
     Widgets.SideText {
         id: leftSideText
@@ -91,8 +111,50 @@ Item {
                     overlay: false
                 }
             }
-            Widgets.SingleLineEdit { text: "One-Player Skirmish" }
-            Widgets.SingleLineEdit { text: "Sk-Rush" }
+            Widgets.SingleLineEdit {
+                text: "One-Player Skirmish"
+
+                Widgets.ImageButton {
+                    width: 25
+                    y: 3
+                    anchors.right: parent.right
+                    defaultSource: "image://imagemap/icon select game name"
+                    hoverSource: "image://imagemap/icon select game name hi"
+                    activeSource: "image://imagemap/icon select game name hi"
+                    defaultSourceWidth: 22
+                    defaultSourceHeight: 22
+                    hoverSourceWidth: 22
+                    hoverSourceHeight: 22
+                    activeSourceWidth: 22
+                    activeSourceHeight: 22
+                    overlay: false
+                }
+            }
+            Widgets.SingleLineEdit {
+                id: map
+                text: hostGameScreen.map
+                readOnly: true
+
+                Widgets.ImageButton {
+                    width: 25
+                    y: 3
+                    anchors.right: parent.right
+                    defaultSource: "image://imagemap/icon select map"
+                    hoverSource: "image://imagemap/icon select map hi"
+                    activeSource: "image://imagemap/icon select map hi"
+                    defaultSourceWidth: 22
+                    defaultSourceHeight: 22
+                    hoverSourceWidth: 22
+                    hoverSourceHeight: 22
+                    activeSourceWidth: 22
+                    activeSourceHeight: 22
+                    overlay: false
+
+                    onClicked: {
+                        createMenu("mapSelect");
+                    }
+                }
+            }
             Widgets.SingleLineEdit {
                 text: "Enter password here"
                 Widgets.ImageButton {
@@ -215,7 +277,7 @@ Item {
         width: rightBox.width
         height: rightBox.height
         anchors.left:  leftBlueBox.right
-        anchors.leftMargin: 36
+        anchors.leftMargin: 40
     }
     Item {
         id: rightBox
@@ -228,10 +290,10 @@ Item {
     // Right sideText
     Widgets.SideText {
         id: rightSideText
-        text: "Players"
+        text: " "
         width: rightBox.height
         y: rightBox.height - 31 // 31 = text Height
-        x: hostGameScreen.width - rightBox.width - 1
+        x: hostGameScreen.width - rightBox.width + 3
     }
 
     // Bottom blue Box
@@ -260,6 +322,7 @@ Item {
 
         Widgets.Chatbox {
             textColor: "white"
+            text: "This is a lot of text and some more and more <b>0123456789</b> <i>0123456789</i> 0123456789 0123456789 0123456789<br>...<br>...<br>...<br>...<br>...<br>...<br>"
         }
     }
 }

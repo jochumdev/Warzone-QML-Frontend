@@ -28,6 +28,9 @@
         "icon start game":"start_game","icon start game hi":"start_game_hi",
         "icon multiopts":"multiopts","icon multiopts hi":"multiopts_hi",
         "icon flag":"flag","icon flag hi":"flag_hi",
-        "icon lock on":"lock_on","icon lock off":"lock_off"
+        "icon lock on":"lock_on","icon lock off":"lock_off",
+        "icon select map":"select_map","icon select map hi":"select_map_hi",
+        "icon select game name":"select_game_name","icon select game name hi":"select_game_name_hi",
+        "icon player":"icon_player"
     }}
 }}
