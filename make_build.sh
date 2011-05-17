@@ -1,9 +1,11 @@
 #!/bin/bash
+# vim: set et sts=4 sw=4 encoding=utf-8:
+
 OLDPATH="$(pwd)"
 MYPATH="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
 BUILD="$1"
 if test -z ${BUILD}; then
-	BUILD="Debug"
+    BUILD="Debug"
 fi
 QMAKE="$(which qmake)"
 #QMAKE="/usr/local/Trolltech/Qt-4.7.4/bin/qmake"
