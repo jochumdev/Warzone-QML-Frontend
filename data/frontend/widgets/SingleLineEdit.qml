@@ -12,12 +12,15 @@ Rectangle {
     property alias readOnly: textEdit.readOnly
 
     TextInput {
-        color: "#aeaeb7"
-        width: parent.width
         id: textEdit
+        anchors.fill: parent
+        anchors.leftMargin: 3; anchors.rightMargin: 3
+        anchors.topMargin: 8
+
+        color: "#aeaeb7"
+        smooth: true
         font.family: "DejaVu Sans"
-        font.pixelSize: 12
-        font.letterSpacing: -0.3
-        x: 3; y: 8
+        font.pointSize: 9
+        // font.letterSpacing: -0.3
     }
 }

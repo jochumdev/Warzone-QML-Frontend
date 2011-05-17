@@ -81,9 +81,7 @@ Item {
             hoverSource: "image://imagemap/icon start game hi"
             x: 6; y: 73
             onClicked: {
-                hostGameScreen.destroy();
-                window.loadMenu = window.backMenu;
-                createScreen(window.backScreen);
+                chatBox.addSystemMessage("You'r game is not listed. This is a dummy, haha!");
             }
         }
 
@@ -94,6 +92,7 @@ Item {
             y: 2
             Widgets.SingleLineEdit {
                 text: "Player"
+                id: playername
 
                 Widgets.ImageButton {
                     width: 25
@@ -327,8 +326,12 @@ Item {
         anchors.top:  bottomBlueBox.top
 
         Widgets.Chatbox {
+            id: chatBox
             textColor: "white"
-            text: "This is a lot of text and some more and more <b>0123456789</b> <i>0123456789</i> 0123456789 0123456789 0123456789<br>...<br>...<br>...<br>...<br>...<br>...<br>"
+            onNewText: {
+                chatBox.addLine(playername.text + ": " + chatBox.inputText)
+                chatBox.inputText = ""
+            }
         }
     }
 }
