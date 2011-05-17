@@ -14,17 +14,6 @@ Rectangle {
     property alias activeSource        : active.source
     property alias activeSourceWidth   : active.sourceSize.width
     property alias activeSourceHeight  : active.sourceSize.height
-    property bool  overlay             : true
-    property bool  off                 : false
-
-    /** Used to control the state of a seclect imagebutton */
-    property bool  selectButton        : false
-    property bool  active              : false
-
-    Component.onCompleted: {
-        image.source = defaultSource
-        if (off) { ma.enabled = false; image.opacity = 0.6 }
-    }
 
     Image {
         id: image
@@ -47,71 +36,45 @@ Rectangle {
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onEntered: {
-            if (parent.overlay) {
-                parent.state = "hoverOverlay"
-            } else {
+            if (parent.state != "active" && parent.state != "activeOff") {
                 parent.state = "hover"
             }
         }
         onExited: {
-            if (!parent.selectButton || !parent.active)
-            {
-                if (parent.overlay) {
-                    parent.state = "defaultOverlay"
-                } else {
-                    parent.state = "default"
-                }
+            if (parent.state != "active" && parent.state != "activeOff") {
+                parent.state = ""
             }
 
         }
         onClicked: {
             container.clicked();
-
-            if (parent.overlay) {
-                parent.state = "activeOverlay"
-            } else {
+            if (parent.state != "activeOff")
+            {
                 parent.state = "active"
-            }
-
-            if (parent.selectButton) {
-                parent.active = true
             }
         }
     }
 
     states: [
             State {
-                    name: "defaultOverlay"
-                    PropertyChanges { target: image; opacity: 1 }
-                    PropertyChanges { target: container; active: false }
-            },
-            State {
-                    name: "hoverOverlay"
-                    PropertyChanges { target: hover; opacity: 1 }
-            },
-            State {
-                    name: "activeOverlay"
-                    PropertyChanges { target: hover; opacity: 1 }
-                    PropertyChanges { target: active; opacity: 1 }
-            },
-            State {
-                    name: "default"
-                    PropertyChanges { target: image; opacity: 1 }
-                    PropertyChanges { target: hover; opacity: 0 }
-                    PropertyChanges { target: active; opacity: 0 }
-                    PropertyChanges { target: container; active: false }
-            },
-            State {
                     name: "hover"
-                    PropertyChanges { target: image; opacity: 0 }
                     PropertyChanges { target: hover; opacity: 1 }
-                    PropertyChanges { target: active; opacity: 0 }
             },
             State {
                     name: "active"
-                    PropertyChanges { target: image; opacity: 0 }
-                    PropertyChanges { target: hover; opacity: 0 }
+                    PropertyChanges { target: hover; opacity: 1 }
                     PropertyChanges { target: active; opacity: 1 }
+            },
+            State {
+                    name: "off"
+                    PropertyChanges { target: image; opacity: 0.6 }
+                    PropertyChanges { target: ma; enabled: false }
+            },
+            State {
+                    name: "activeOff"
+                    PropertyChanges { target: image; opacity: 0 }
+                    PropertyChanges { target: active; opacity: 0.6 }
+                    PropertyChanges { target: ma; enabled: false }
             }
     ]
 }

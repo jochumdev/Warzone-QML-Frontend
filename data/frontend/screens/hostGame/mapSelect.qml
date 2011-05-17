@@ -12,19 +12,18 @@ Item {
     function setPlayers(activeWidget, players, updateList)
     {
         // First deactivate all Textbuttons
-        _all.active = false; _all.state = "default";
-        _2p.active = false; _2p.state = "default";
-        _3p.active = false; _3p.state = "default";
-        _4p.active = false; _4p.state = "default";
-        _5p.active = false; _5p.state = "default";
-        _6p.active = false; _6p.state = "default";
-        _7p.active = false; _7p.state = "default";
-        _8p.active = false; _8p.state = "default";
-        _9p.active = false; _9p.state = "default";
-        _10p.active = false; _10p.state = "default";
+        _all.state = "default";
+        _2p.state = "default";
+        _3p.state = "default";
+        _4p.state = "default";
+        _5p.state = "default";
+        _6p.state = "default";
+        _7p.state = "default";
+        _8p.state = "default";
+        _9p.state = "default";
+        _10p.state = "default";
 
         // Then (re)activate the active one.
-        activeWidget.active = true;
         activeWidget.state = "active";
 
         container.players = players;
@@ -37,11 +36,10 @@ Item {
     function setTechLevel(activeWidget, level, updateList)
     {
         // same as above
-        _t1.active = false; _t1.state = "default";
-        _t2.active = false; _t2.state = "default";
-        _t3.active = false; _t3.state = "default";
+        _t1.state = "default";
+        _t2.state = "default";
+        _t3.state = "default";
 
-        activeWidget.active = true;
         activeWidget.state = "active";
 
         container.techlevel = level;
@@ -155,6 +153,7 @@ Item {
             text: name
             players: players2
             onClicked: {
+                mapButton.state = "";
                 container.destroy();
                 rightSideText.text = "";
                 hostGameScreen.map = name + "-T" + container.techlevel;

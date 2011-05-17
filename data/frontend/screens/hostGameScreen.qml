@@ -108,7 +108,6 @@ Item {
                     hoverSourceHeight: 22
                     activeSourceWidth: 22
                     activeSourceHeight: 22
-                    overlay: false
                 }
             }
             Widgets.SingleLineEdit {
@@ -127,7 +126,6 @@ Item {
                     hoverSourceHeight: 22
                     activeSourceWidth: 22
                     activeSourceHeight: 22
-                    overlay: false
                 }
             }
             Widgets.SingleLineEdit {
@@ -136,6 +134,7 @@ Item {
                 readOnly: true
 
                 Widgets.ImageButton {
+                    id: mapButton
                     width: 25
                     y: 3
                     anchors.right: parent.right
@@ -148,9 +147,9 @@ Item {
                     hoverSourceHeight: 22
                     activeSourceWidth: 22
                     activeSourceHeight: 22
-                    overlay: false
 
                     onClicked: {
+                        mapButton.state = "activeOff";
                         createMenu("mapSelect");
                     }
                 }
@@ -158,6 +157,7 @@ Item {
             Widgets.SingleLineEdit {
                 text: "Enter password here"
                 Widgets.ImageButton {
+                    id: passwordButton
                     width: 25
                     y: 3
                     anchors.right: parent.right
@@ -170,7 +170,13 @@ Item {
                     hoverSourceHeight: 22
                     activeSourceWidth: 22
                     activeSourceHeight: 22
-                    overlay: false
+
+                    onClicked: {
+                        defaultSource: "image://imagemap/icon lock on"
+                        hoverSource: "image://imagemap/icon lock of"
+                        activeSource: "image://imagemap/icon lock off"
+                        passwordButton.state = ""
+                    }
                 }
             }
             Widgets.SingleLineEdit {

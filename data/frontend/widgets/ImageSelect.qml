@@ -5,9 +5,7 @@ Rectangle {
     id: container
     width: parent.width
 
-    signal changed
-
-    property int   active       : 0
+    signal clicked
 
     property int   spacing      : 40
     property alias image1Source : image1.defaultSource
@@ -20,62 +18,52 @@ Rectangle {
     property alias image2Active : image2.activeSource
     property alias image3Active : image3.activeSource
 
-    /** Disable a single button **/
-    property alias image1Off    : image1.off
-    property alias image2Off    : image2.off
-    property alias image3Off    : image3.off
+    property alias image1State  : image1.state
+    property alias image2State  : image2.state
+    property alias image3State  : image3.state
 
 
     Widgets.ImageButton {
         id: image1
-        //sourceSize.width: undefined
-        //sourceSize.height: undefined
-        selectButton: true
         onClicked: {
-            if (parent.active != 1) {
-                parent.active = 1
-                parent.changed()
-                image2.active = false
-                image2.state = "default"
-                image3.active = false
-                image3.state = "default"
-            }
+            parent.state = "1";
+            parent.clicked();
         }
     }
     Widgets.ImageButton {
         id: image2
-        //sourceSize.width: undefined
-        //sourceSize.height: undefined
-        selectButton: true
         anchors.left:  image1.right
         anchors.leftMargin: parent.spacing
         onClicked: {
-            if (parent.active != 2) {
-                parent.active = 2
-                parent.changed()
-                image1.active = false
-                image1.state = "default"
-                image3.active = false
-                image3.state = "default"
-            }
+            parent.state = "2";
+            parent.clicked();
         }
     }
     Widgets.ImageButton {
         id: image3
-        //sourceSize.width: undefined
-        //sourceSize.height: undefined
-        selectButton: true
         anchors.left:  image2.right
         anchors.leftMargin: parent.spacing
         onClicked: {
-            if (parent.active != 3) {
-                parent.active = 3
-                parent.changed()
-                image1.active = false
-                image1.state = "default"
-                image2.active = false
-                image2.state = "default"
-            }
+            parent.state = "3";
+            parent.clicked();
         }
     }
+
+    states: [
+            State {
+                    name: "1"
+                    PropertyChanges { target: image2; state: "" }
+                    PropertyChanges { target: image3; state: "" }
+            },
+            State {
+                    name: "2"
+                    PropertyChanges { target: image1; state: "" }
+                    PropertyChanges { target: image3; state: "" }
+            },
+            State {
+                    name: "3"
+                    PropertyChanges { target: image1; state: "" }
+                    PropertyChanges { target: image2; state: "" }
+            }
+   ]
 }

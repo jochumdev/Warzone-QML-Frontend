@@ -6,7 +6,6 @@ Rectangle {
     signal clicked
 
     property alias text                : _text.text
-    property bool  active              : false
 
     color: "#000161"
     border.color: "#0015f0"
@@ -28,14 +27,12 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
-        onEntered: { parent.state = "hover" }
-        onExited: { if (!parent.active) { parent.state = "default"; } }
+        onEntered: { if (parent.state != "active") { parent.state = "hover"; } }
+        onExited: { if (parent.state != "active") { parent.state = "default"; } }
         onClicked: {
-            parent.clicked();
             parent.state = "active"
-            parent.active = true;
+            parent.clicked();
         }
-
     }
 
     states: [
