@@ -29,6 +29,13 @@ find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
 
+# Ugly OS-X Fix, should find a better way.
+IF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin")
+	SET(QT_CORE_LIBRARY "-framework QtCore")
+ELSE (${CMAKE_SYSTEM_NAME} MATCHES "^Darwin")
+	SET(QT_CORE_LIBRARY ${QT_QTCORE_LIBRARY})
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin")
+
 IF("${CMAKE_BUILD_TYPE}" MATCHES "^Rel.*")
     ADD_DEFINITIONS("-DQT_NO_DEBUG")
 ENDIF("${CMAKE_BUILD_TYPE}" MATCHES "^Rel.*")
