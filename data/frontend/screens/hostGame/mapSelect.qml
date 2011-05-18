@@ -12,16 +12,16 @@ Item {
     function setPlayers(activeWidget, players, updateList)
     {
         // First deactivate all Textbuttons
-        _all.state = "default";
-        _2p.state = "default";
-        _3p.state = "default";
-        _4p.state = "default";
-        _5p.state = "default";
-        _6p.state = "default";
-        _7p.state = "default";
-        _8p.state = "default";
-        _9p.state = "default";
-        _10p.state = "default";
+        _all.state = "";
+        _2p.state = "";
+        _3p.state = "";
+        _4p.state = "";
+        _5p.state = "";
+        _6p.state = "";
+        _7p.state = "";
+        _8p.state = "";
+        _9p.state = "";
+        _10p.state = "";
 
         // Then (re)activate the active one.
         activeWidget.state = "active";
@@ -36,9 +36,9 @@ Item {
     function setTechLevel(activeWidget, level, updateList)
     {
         // same as above
-        _t1.state = "default";
-        _t2.state = "default";
-        _t3.state = "default";
+        _t1.state = "";
+        _t2.state = "";
+        _t3.state = "";
 
         activeWidget.state = "active";
 
