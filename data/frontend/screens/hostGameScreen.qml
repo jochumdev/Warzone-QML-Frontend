@@ -11,8 +11,15 @@ Item {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
 
+    property string     playername  :       "Player"
+    property string     map         :       "Rush-T1"
+    property int        players     :       4
+    property int        techlevel   :       1
+    property bool       fixedTeams  :       false
 
-    property string map         :       "Rush-T1"
+    property bool       isHosting   :       false
+
+    property variant    subScreen
 
     function createMenu(name)
     {
@@ -27,8 +34,8 @@ Item {
             return;
         }
 
-        myComponent.createObject(rightBox)
         rightSideText.text = Support.hostGameList[name][1]
+        hostGameScreen.subScreen = myComponent.createObject(rightBox)
     }
 
     // Left sideText
@@ -57,9 +64,20 @@ Item {
             hoverSource: "image://imagemap/icon back hi"
             x: 6; y: 5
             onClicked: {
-                hostGameScreen.destroy();
-                window.loadMenu = window.backMenu;
-                createScreen(window.backScreen);
+                if (!hostGameScreen.isHosting) {
+                    hostGameScreen.destroy();
+                    window.loadMenu = window.backMenu;
+                    createScreen(window.backScreen);
+                } else {
+                    hostGameScreen.subScreen.destroy();
+                    mapButton.state = ""
+                    passwordButton.state = ""
+                    hostGameButton.state = ""
+                    hostGameButton.opacity = 1
+                    hostGameScreen.isHosting = false;
+                    backButton.state = ""
+                    chatBox.clear()
+                }
             }
         }
 
@@ -81,6 +99,13 @@ Item {
             hoverSource: "image://imagemap/icon start game hi"
             x: 6; y: 73
             onClicked: {
+                mapButton.state = "off"
+                passwordButton.state = "off"
+                hostGameButton.state = "off"
+                hostGameButton.opacity = 0
+                hostGameScreen.isHosting = true
+                createMenu("players");
+                chatBox.clear()
                 chatBox.addSystemMessage("You'r game is not listed. This is a dummy, haha!");
             }
         }
@@ -91,8 +116,16 @@ Item {
             x: 50
             y: 2
             Widgets.SingleLineEdit {
-                text: "Player"
                 id: playername
+                text: hostGameScreen.playername
+                maximumLength: 14
+
+                onAccepted: {
+                    if (hostGameScreen.playername != text) {
+                        chatBox.addLine(hostGameScreen.playername + " -> " + text);
+                        hostGameScreen.playername = text
+                    }
+                }
 
                 Widgets.ImageButton {
                     width: 25
@@ -111,21 +144,6 @@ Item {
             }
             Widgets.SingleLineEdit {
                 text: "One-Player Skirmish"
-
-                Widgets.ImageButton {
-                    width: 25
-                    y: 3
-                    anchors.right: parent.right
-                    defaultSource: "image://imagemap/icon select game name"
-                    hoverSource: "image://imagemap/icon select game name hi"
-                    activeSource: "image://imagemap/icon select game name hi"
-                    defaultSourceWidth: 22
-                    defaultSourceHeight: 22
-                    hoverSourceWidth: 22
-                    hoverSourceHeight: 22
-                    activeSourceWidth: 22
-                    activeSourceHeight: 22
-                }
             }
             Widgets.SingleLineEdit {
                 id: map
@@ -224,6 +242,15 @@ Item {
                     image3Source: "image://imagemap/button fixed teams"
                     image3Hover: "image://imagemap/button fixed teams hi"
                     image3Active: "image://imagemap/button active"
+
+                    onClicked: {
+                        if (alliances.state == 3) {
+                            hostGameScreen.fixedTeams = true
+                        }
+                        else {
+                            hostGameScreen.fixedTeams = false
+                        }
+                    }
                 }
             }
             Widgets.SingleLineEdit {
@@ -315,14 +342,14 @@ Item {
         id: bottomSideText
         text: "Chat"
         width: bottomBox.height
-        y: 458 // This should be calculated.
+        y: 430 // This should be calculated.
         x: 2
     }
 
     Item {
         id: bottomBox
         width: parent.width
-        height: 145
+        height: 120
         anchors.top:  bottomBlueBox.top
 
         Widgets.Chatbox {

@@ -6,9 +6,6 @@ Item {
     id: container
     anchors.fill: parent
 
-    property int   players:              8
-    property int   techlevel:            1
-
     function setPlayers(activeWidget, players, updateList)
     {
         // First deactivate all Textbuttons
@@ -26,7 +23,7 @@ Item {
         // Then (re)activate the active one.
         activeWidget.state = "active";
 
-        container.players = players;
+        hostGameScreen.players = players;
 
         if (updateList != false) {
             updateMapList();
@@ -42,7 +39,7 @@ Item {
 
         activeWidget.state = "active";
 
-        container.techlevel = level;
+        hostGameScreen.techlevel = level;
 
         if (updateList != false) {
             updateMapList();
@@ -55,8 +52,8 @@ Item {
         for (var mapname in Support.maps)
         {
             var mapdata = Support.maps[mapname];
-            if ((container.players == 0 || mapdata["players"] == container.players)
-                 && mapdata["techlevels"].indexOf(container.techlevel) != -1)
+            if ((hostGameScreen.players == 0 || mapdata["players"] == hostGameScreen.players)
+                 && mapdata["techlevels"].indexOf(hostGameScreen.techlevel) != -1)
             {
                 mapModel.append({"name": mapname, "players2": mapdata["players"]});
             }
@@ -64,7 +61,7 @@ Item {
     }
 
     Component.onCompleted: {
-        switch(container.techlevel) {
+        switch(hostGameScreen.techlevel) {
             case 1:
                 setTechLevel(_t1, 1, false);
             break;
@@ -76,7 +73,7 @@ Item {
             break;
         };
 
-        switch(container.players) {
+        switch(hostGameScreen.players) {
             case 0:
                 setPlayers(_all, 0, false);
             break;
@@ -156,7 +153,7 @@ Item {
                 mapButton.state = "";
                 container.destroy();
                 rightSideText.text = "";
-                hostGameScreen.map = name + "-T" + container.techlevel;
+                hostGameScreen.map = name + "-T" + hostGameScreen.techlevel;
             }
         }
     }

@@ -48,10 +48,6 @@ Rectangle {
         }
         onClicked: {
             container.clicked();
-            if (parent.state != "activeOff")
-            {
-                parent.state = "active"
-            }
         }
     }
 

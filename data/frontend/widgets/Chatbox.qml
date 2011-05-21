@@ -27,6 +27,13 @@ Item {
         view.contentY = text.height - view.height
     }
 
+    function clear()
+    {
+        text.text = ""
+        text.height = (view.height < text.paintedHeight ? text.paintedHeight : view.height)
+        view.contentY = text.height - view.height
+    }
+
     Flickable {
         id: view
 

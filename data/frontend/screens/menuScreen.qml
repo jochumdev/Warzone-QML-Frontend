@@ -51,7 +51,7 @@ Item {
         Image {
             source: "image://imagemap/FE LOGO:height"
             sourceSize.width: 10
-            sourceSize.height: 140
+            sourceSize.height: 115
             opacity: 1
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2

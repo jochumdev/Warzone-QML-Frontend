@@ -31,6 +31,8 @@
         "icon lock on":"lock_on","icon lock off":"lock_off",
         "icon select map":"select_map","icon select map hi":"select_map_hi",
         "icon select game name":"select_game_name","icon select game name hi":"select_game_name_hi",
-        "icon player":"icon_player"
+        "icon player":"icon_player","icon ai player":"icon_ai_player","icon checkbox on":"icon_checkbox_on","icon checkbox off":"icon_checkbox_off",
+        "icon player0":"icon_player0","icon player1":"icon_player1","icon player2":"icon_player2","icon player3":"icon_player3","icon player4":"icon_player4","icon player5":"icon_player5","icon player6":"icon_player6","icon player7":"icon_player7",
+        "icon player0 hi":"icon_player0_hi","icon player1 hi":"icon_player1_hi","icon player2 hi":"icon_player2_hi","icon player3 hi":"icon_player3_hi","icon player4 hi":"icon_player4_hi","icon player5 hi":"icon_player5_hi","icon player6 hi":"icon_player6_hi","icon player7 hi":"icon_player7_hi"
     }}
 }}

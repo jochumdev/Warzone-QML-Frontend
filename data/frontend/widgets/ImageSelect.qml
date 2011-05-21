@@ -52,18 +52,21 @@ Rectangle {
     states: [
             State {
                     name: "1"
+                    PropertyChanges { target: image1; state: "active" }
                     PropertyChanges { target: image2; state: "" }
                     PropertyChanges { target: image3; state: "" }
             },
             State {
                     name: "2"
                     PropertyChanges { target: image1; state: "" }
+                    PropertyChanges { target: image2; state: "active" }
                     PropertyChanges { target: image3; state: "" }
             },
             State {
                     name: "3"
                     PropertyChanges { target: image1; state: "" }
                     PropertyChanges { target: image2; state: "" }
+                    PropertyChanges { target: image3; state: "active" }
             }
    ]
 }

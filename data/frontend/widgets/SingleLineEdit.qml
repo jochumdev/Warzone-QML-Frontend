@@ -7,9 +7,12 @@ Rectangle {
     border.color: "#0015f0"
     border.width: 1
 
+    signal accepted
+
     property alias text: textEdit.text
     property alias textColor: textEdit.color
     property alias readOnly: textEdit.readOnly
+    property alias maximumLength: textEdit.maximumLength
 
     TextInput {
         id: textEdit
@@ -22,5 +25,15 @@ Rectangle {
         font.family: "DejaVu Sans"
         font.pointSize: 9
         // font.letterSpacing: -0.3
+
+        onFocusChanged: {
+            if (!focus) {
+                parent.accepted()
+            }
+        }
+
+        onAccepted: {
+            parent.accepted();
+        }
     }
 }

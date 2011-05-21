@@ -26,7 +26,8 @@ var screenList = {
 }
 
 var hostGameList = {
-    "mapSelect"             :       ["hostGame/mapSelect.qml", "Select Map"]
+    "mapSelect"             :       ["hostGame/mapSelect.qml", "Select Map"],
+    "players"               :       ["hostGame/players.qml", "Players"]
 }
 
 var backgrounds = ["Background 0",
