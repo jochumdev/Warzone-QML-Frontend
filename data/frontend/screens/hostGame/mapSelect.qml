@@ -153,6 +153,7 @@ Item {
                 mapButton.state = "";
                 container.destroy();
                 rightSideText.text = "";
+                hostGameScreen.players = players2
                 hostGameScreen.map = name + "-T" + hostGameScreen.techlevel;
             }
         }
