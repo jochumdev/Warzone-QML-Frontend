@@ -10,10 +10,12 @@ Item {
     }
 
     Component.onCompleted: {
-        playersModel.append({isAI: false, team: "TEAM0", playerColor: "player0", name: hostGameScreen.playername, isReady: false});
+        playersModel.append({isAI: false, team: "TEAM0", playerColor: "player0", name: hostGameScreen.playername, isReady: false,
+                            statsPlayed: 0, statsWins: 0, statsLosses: 0, statsTotalKills: 0, statsTotalScore: 0});
 
         for(var i=1;i<hostGameScreen.players;i++) {
-            playersModel.append({isAI: true, team: "TEAM"+i, playerColor: "player"+i, name: "Nexus", isReady: true });
+            playersModel.append({isAI: true, team: "TEAM"+i, playerColor: "player"+i, name: "Nexus", isReady: true,
+                                 statsPlayed: 0, statsWins: 0, statsLosses: 0, statsTotalKills: 0, statsTotalScore: 0});
         }
     }
 
@@ -85,6 +87,137 @@ Item {
                 width: 28; height: parent.height
 
                 anchors.left: colorflag.right
+
+                Image {
+                    id: topstar
+
+                    anchors.top: parent.top
+                    anchors.topMargin: 4
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+
+                    source: {
+                        if (statsTotalKills >600)
+                        {
+                            "image://imagemap/star gold"
+                        }
+                        else if (statsTotalKills >300)
+                        {
+                            "image://imagemap/star silver"
+                        }
+                        else if (statsTotalKills >150)
+                        {
+                            "image://imagemap/star bronze"
+                        }
+                        else
+                        {
+                            "image://imagemap/empty"
+                        }
+                    }
+                    sourceSize.width: 8
+                    sourceSize.height: 8
+
+                    opacity: isAI ? 0 : 1
+                }
+
+                Image {
+                    id: middlestar
+
+                    anchors.top: topstar.bottom
+                    anchors.topMargin: 2
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+
+                    source: {
+                        if (statsPlayed >600)
+                        {
+                            "image://imagemap/star gold"
+                        }
+                        else if (statsPlayed >300)
+                        {
+                            "image://imagemap/star silver"
+                        }
+                        else if (statsPlayed >150)
+                        {
+                            "image://imagemap/star bronze"
+                        }
+                        else
+                        {
+                            "image://imagemap/empty"
+                        }
+                    }
+                    sourceSize.width: 8
+                    sourceSize.height: 8
+
+                    opacity: isAI ? 0 : 1
+                }
+
+                Image {
+                    id: bottomstar
+
+                    anchors.top: middlestar.bottom
+                    anchors.topMargin: 2
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+
+                    source: {
+                        if (statsWins >600)
+                        {
+                            "image://imagemap/star gold"
+                        }
+                        else if (statsWins >300)
+                        {
+                            "image://imagemap/star silver"
+                        }
+                        else if (statsWins >150)
+                        {
+                            "image://imagemap/star bronze"
+                        }
+                        else
+                        {
+                            "image://imagemap/empty"
+                        }
+                    }
+                    sourceSize.width: 8
+                    sourceSize.height: 8
+
+                    opacity: isAI ? 0 : 1
+                }
+
+
+
+                Image {
+                    anchors.left: topstar.right
+                    anchors.leftMargin: 1
+                    anchors.top: parent.top
+                    anchors.topMargin: 8
+
+                    source: {
+                        if (statsPlayed < 5) {
+                            "image://imagemap/medal dummy"
+                        }
+                        else if (statsWins >= 24 && (statsWins > (8 * statsLosses)))
+                        {
+                            "image://imagemap/medal gold"
+                        }
+                        else if (statsWins >= 12 && (statsWins > (4 * statsLosses)))
+                        {
+                            "image://imagemap/medal silver"
+                        }
+                        else if (statsWins >= 6 && (statsWins > (2 * statsLosses)))
+                        {
+                            "image://imagemap/medal bronze"
+                        }
+                        else
+                        {
+                            "image://imagemap/empty"
+                        }
+                    }
+                    sourceSize.width: 12
+                    sourceSize.height: 50
+
+                    opacity: isAI ? 0 : 1
+                }
             }
 
             Text {
