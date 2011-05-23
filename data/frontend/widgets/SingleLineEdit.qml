@@ -36,4 +36,12 @@ Rectangle {
             parent.accepted();
         }
     }
+
+    states: [
+            State {
+                    name: "off"
+                    PropertyChanges { target: textEdit; color: "grey" }
+                    PropertyChanges { target: textEdit; readOnly: true }
+            }
+    ]
 }

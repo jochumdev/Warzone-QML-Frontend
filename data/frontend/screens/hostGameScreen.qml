@@ -13,11 +13,24 @@ Item {
 
     property string     playername  :       "Player"
     property string     map         :       "Rush-T1"
-    property int        players     :       4
+    property int        maxPlayers  :       4
     property int        techlevel   :       1
     property bool       fixedTeams  :       false
 
-    property bool       isHosting   :       false
+    // Skirmish game or multiplayer game?
+    property bool       isSkirmish  :       true
+    // Are we the host and able to do host things?
+    property bool       isHost      :       true
+    // The index of this player, always 0 for hosts.
+    property int        playerIndex :       0
+
+    // Contains all the players
+    ListModel {
+        id: playersModel
+    }
+
+    // Internal: Indicates that we are in the player screen.
+    property bool       _isHosting  :       false
 
     property variant    subScreen
 
@@ -64,17 +77,24 @@ Item {
             hoverSource: "image://imagemap/icon back hi"
             x: 6; y: 5
             onClicked: {
-                if (!hostGameScreen.isHosting) {
+                if (!hostGameScreen._isHosting) {
                     hostGameScreen.destroy();
                     window.loadMenu = window.backMenu;
                     createScreen(window.backScreen);
                 } else {
                     hostGameScreen.subScreen.destroy();
+
+                    if (!hostGameScreen.isSkirmish)
+                    {
+                        passwordButton.state = ""
+                        passwordInput.state = ""
+                        hostnameInput.state = ""
+                    }
+
                     mapButton.state = ""
-                    passwordButton.state = ""
                     hostGameButton.state = ""
                     hostGameButton.opacity = 1
-                    hostGameScreen.isHosting = false;
+                    hostGameScreen._isHosting = false;
                     backButton.state = ""
                     chatBox.clear()
                 }
@@ -102,8 +122,10 @@ Item {
                 mapButton.state = "off"
                 passwordButton.state = "off"
                 hostGameButton.state = "off"
+                hostnameInput.state = "off"
+                passwordInput.state = "off"
                 hostGameButton.opacity = 0
-                hostGameScreen.isHosting = true
+                hostGameScreen._isHosting = true
                 createMenu("players");
                 chatBox.clear()
                 chatBox.addSystemMessage("You'r game is not listed. This is a dummy, haha!");
@@ -124,6 +146,7 @@ Item {
                     if (hostGameScreen.playername != text) {
                         chatBox.addLine(hostGameScreen.playername + " -> " + text);
                         hostGameScreen.playername = text
+                        playersModel.setProperty(hostGameScreen.playerIndex, "name", text)
                     }
                 }
 
@@ -143,7 +166,11 @@ Item {
                 }
             }
             Widgets.SingleLineEdit {
+                id: hostnameInput
+
                 text: "One-Player Skirmish"
+
+                state: (hostGameScreen.isSkirmish ? "off" : "")
             }
             Widgets.SingleLineEdit {
                 id: map
@@ -172,7 +199,11 @@ Item {
                 }
             }
             Widgets.SingleLineEdit {
+                id: passwordInput
                 text: "Enter password here"
+
+                state: (hostGameScreen.isSkirmish ? "off" : "")
+
                 Widgets.ImageButton {
                     id: passwordButton
                     width: 25
@@ -187,6 +218,8 @@ Item {
                     hoverSourceHeight: 22
                     activeSourceWidth: 22
                     activeSourceHeight: 22
+
+                    state: (hostGameScreen.isSkirmish ? "off" : "")
 
                     onClicked: {
                         defaultSource: "image://imagemap/icon lock on"

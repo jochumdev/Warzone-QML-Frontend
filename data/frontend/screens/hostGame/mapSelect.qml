@@ -23,7 +23,7 @@ Item {
         // Then (re)activate the active one.
         activeWidget.state = "active";
 
-        hostGameScreen.players = players;
+        hostGameScreen.maxPlayers = players;
 
         if (updateList != false) {
             updateMapList();
@@ -52,7 +52,7 @@ Item {
         for (var mapname in Support.maps)
         {
             var mapdata = Support.maps[mapname];
-            if ((hostGameScreen.players == 0 || mapdata["players"] == hostGameScreen.players)
+            if ((hostGameScreen.maxPlayers == 0 || mapdata["players"] == hostGameScreen.maxPlayers)
                  && mapdata["techlevels"].indexOf(hostGameScreen.techlevel) != -1)
             {
                 mapModel.append({"name": mapname, "players2": mapdata["players"]});
@@ -73,7 +73,7 @@ Item {
             break;
         };
 
-        switch(hostGameScreen.players) {
+        switch(hostGameScreen.maxPlayers) {
             case 0:
                 setPlayers(_all, 0, false);
             break;
@@ -153,7 +153,7 @@ Item {
                 mapButton.state = "";
                 container.destroy();
                 rightSideText.text = "";
-                hostGameScreen.players = players2
+                hostGameScreen.maxPlayers = players2
                 hostGameScreen.map = name + "-T" + hostGameScreen.techlevel;
             }
         }
