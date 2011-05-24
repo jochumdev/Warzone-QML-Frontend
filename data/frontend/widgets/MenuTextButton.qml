@@ -18,7 +18,7 @@ Rectangle {
         font.weight: Font.DemiBold
         font.family: "DejaVu Sans"
         font.pixelSize: 21
-        // smooth: true
+        smooth: true
 
         // Text into center
         horizontalAlignment: Text.AlignHCenter

@@ -17,9 +17,49 @@ Item {
         }
     }
 
-    Widgets.MenuTextButton { text: "Graphics Mode"; width: parent.width; bwidth: 248; y: 40; }
-    Widgets.MenuTextButton { text: "Resolution"; width: parent.width; bwidth: 248; y: 80; }
-    Widgets.MenuTextButton { text: "Texture Size"; width: parent.width; bwidth: 248; y: 120; }
-    Widgets.MenuTextButton { text: "Vertical Sync"; width: parent.width; bwidth: 248; y: 160; }
-    Widgets.MenuTextButton { text: "FSAA"; width: parent.width; bwidth: 248; y: 200; }
+    Text {
+        anchors.top: parent.top
+        anchors.topMargin: 15
+        anchors.left: parent.left
+        anchors.leftMargin: 50
+
+        text: "* Takes effect on game restart"
+        color: "white"
+        smooth: true
+        font.family: "DejaVu Sans"
+        font.pointSize: 9
+    }
+
+    // Labels
+    Column {
+        id: labels
+        width: 280
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: parent.left
+        anchors.leftMargin: 30
+
+        spacing: 15
+
+        Widgets.LargeText { text: "Graphics Mode*" }
+        Widgets.LargeText { text: "Resolution*" }
+        Widgets.LargeText { text: "Texture Size" }
+        Widgets.LargeText { text: "Vertical Sync*" }
+        Widgets.LargeText { text: "FSAA*" }
+    }
+
+    // Options
+    Column {
+        width: 165
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: labels.right
+
+        spacing: 15
+        Widgets.ClickSelect {width: parent.width; options: ["Windowed", "Fullscreen"]}
+        Widgets.ClickSelect {width: parent.width; options: ["1024 x 768", "1920 x 1080"]}
+        Widgets.ClickSelect {width: parent.width; options: ["128", "256", "512", "1024", "2048"]}
+        Widgets.ClickSelect {width: parent.width; options: ["On", "Off"]}
+        Widgets.ClickSelect {width: parent.width; options: ["Off", "On"]}
+    }
 }

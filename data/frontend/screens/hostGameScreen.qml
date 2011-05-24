@@ -235,7 +235,6 @@ Item {
                     id: scavs
                     x: 105
                     y: 3
-                    spacing: 36
                     image1Source: "image://imagemap/SCAVENGERS ON"
                     image1Hover: "image://imagemap/SCAVENGERS ON HI"
                     image1Active: "image://imagemap/QUESTION"
@@ -250,7 +249,6 @@ Item {
                     id: fog
                     x: 105
                     y: 3
-                    spacing: 36
                     image1Source: "image://imagemap/button eye"
                     image1Hover: "image://imagemap/button eye hi"
                     image1Active: "image://imagemap/button active"
@@ -265,7 +263,6 @@ Item {
                     id: alliances
                     x: 105
                     y: 3
-                    spacing: 36
                     image1Source: "image://imagemap/button ffa"
                     image1Hover: "image://imagemap/button ffa hi"
                     image1Active: "image://imagemap/button active"
@@ -292,7 +289,6 @@ Item {
                     id: power
                     x: 105
                     y: 3
-                    spacing: 36
                     image1Source: "image://imagemap/button low power"
                     image1Hover: "image://imagemap/button low power hi"
                     image1Active: "image://imagemap/button active"
@@ -310,7 +306,6 @@ Item {
                     id: base
                     x: 105
                     y: 3
-                    spacing: 36
                     image1Source: "image://imagemap/button no bases"
                     image1Hover: "image://imagemap/button no bases hi"
                     image1Active: "image://imagemap/button active"

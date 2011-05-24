@@ -17,10 +17,38 @@ Item {
         }
     }
 
-    Widgets.MenuTextButton { text: "Video Playback"; width: parent.width; bwidth: 248; y: 40; }
-    Widgets.MenuTextButton { text: "Scanlines"; width: parent.width; bwidth: 248; y: 80; }
-    Widgets.MenuTextButton { text: "Screen Shake"; width: parent.width; bwidth: 248; y: 120; }
-    Widgets.MenuTextButton { text: "Fog"; width: parent.width; bwidth: 248; y: 160; }
-    Widgets.MenuTextButton { text: "Subtitles"; width: parent.width; bwidth: 248; y: 200; }
-    Widgets.MenuTextButton { text: "Shadows"; width: parent.width; bwidth: 248; y: 240; }
+    // Labels
+    Column {
+        id: labels
+        width: 280
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: parent.left
+        anchors.leftMargin: 30
+
+        spacing: 15
+
+        Widgets.LargeText { text: "Video Playback" }
+        Widgets.LargeText { text: "Scanlines" }
+        Widgets.LargeText { text: "Screen Shake" }
+        Widgets.LargeText { text: "Fog" }
+        Widgets.LargeText { text: "Subtitles" }
+        Widgets.LargeText { text: "Shadows" }
+    }
+
+    // Options
+    Column {
+        width: 165
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: labels.right
+
+        spacing: 15
+        Widgets.ClickSelect {width: parent.width; options: ["Fullscreen", "1X", "2X"]}
+        Widgets.ClickSelect {width: parent.width; options: ["Off", "On"]}
+        Widgets.ClickSelect {width: parent.width; options: ["Off", "On"]}
+        Widgets.ClickSelect {width: parent.width; options: ["Mist", "Fog Of War"]}
+        Widgets.ClickSelect {width: parent.width; options: ["On", "Off"]}
+        Widgets.ClickSelect {width: parent.width; options: ["On", "Off"]}
+    }
 }

@@ -17,8 +17,34 @@ Item {
         }
     }
 
-    Widgets.MenuTextButton { text: "Reverse Rotation"; width: parent.width; bwidth: 248; y: 40; }
-    Widgets.MenuTextButton { text: "Trap Cursor"; width: parent.width; bwidth: 248; y: 80; }
-    Widgets.MenuTextButton { text: "Switch Mouse Buttons"; width: parent.width; bwidth: 248; y: 120; }
-    Widgets.MenuTextButton { text: "Rotate Screen"; width: parent.width; bwidth: 248; y: 160; }
+    // Labels
+    Column {
+        id: labels
+        width: 280
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: parent.left
+        anchors.leftMargin: 30
+
+        spacing: 15
+
+        Widgets.LargeText { text: "Reverse Rotation" }
+        Widgets.LargeText { height: 60;  text: "Trap Cursor" }
+        Widgets.LargeText { text: "Switch Mouse Buttons" }
+        Widgets.LargeText { text: "Rotate Screen" }
+    }
+
+    // Options
+    Column {
+        width: 165
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: labels.right
+
+        spacing: 15
+        Widgets.ClickSelect {width: parent.width; options: ["On", "Off"]}
+        Widgets.ClickSelect {height: 60; width: parent.width; options: ["Off", "On"]}
+        Widgets.ClickSelect {width: parent.width; options: ["Off", "On"]}
+        Widgets.ClickSelect {width: parent.width; options: ["Right Mouse", "Middle Mouse"]}
+    }
 }

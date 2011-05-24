@@ -1,6 +1,6 @@
 import QtQuick 1.0
 
-Rectangle {
+Item {
     id: container
 
     signal clicked
@@ -15,19 +15,22 @@ Rectangle {
     property alias activeSourceWidth   : active.sourceSize.width
     property alias activeSourceHeight  : active.sourceSize.height
 
+    width: image.width
+    height: image.height
+
     Image {
         id: image
         opacity: 1
-    }
 
-    Image {
-        id: hover
-        opacity: 0
-    }
+        Image {
+            id: hover
+            opacity: 0
 
-    Image {
-        id: active
-        opacity: 0
+            Image {
+                id: active
+                opacity: 0
+            }
+        }
     }
 
     MouseArea {

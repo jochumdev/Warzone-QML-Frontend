@@ -59,6 +59,7 @@ Item {
             anchors.rightMargin: 3
             anchors.topMargin: 9
 
+            interactive: false
             orientation: ListView.Horizontal
             spacing: 1
 
@@ -436,6 +437,8 @@ Item {
         anchors.topMargin: 2
         anchors.bottomMargin: 2
 
+        interactive: false
+
         z: 99
         opacity: 0
 
@@ -762,6 +765,7 @@ Item {
         anchors.bottomMargin: 2
 
         spacing: 3
+        interactive: false
 
         model: playersModel
         delegate: playersDelegate

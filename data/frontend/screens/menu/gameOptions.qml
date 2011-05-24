@@ -17,9 +17,76 @@ Item {
         }
     }
 
-    Widgets.MenuTextButton { text: "Difficulty"; width: parent.width; bwidth: 248; y: 40; }
-    Widgets.MenuTextButton { text: "Scroll Speed"; width: parent.width; bwidth: 248; y: 80; }
-    Widgets.MenuTextButton { text: "Unit Colour"; width: parent.width; bwidth: 248; y: 120; }
-    Widgets.MenuTextButton { text: "Language"; width: parent.width; bwidth: 248; y: 160; }
-    Widgets.MenuTextButton { text: "Radar"; width: parent.width; bwidth: 248; y: 200; }
+    // Labels
+    Column {
+        id: labels
+        width: 280
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: parent.left
+        anchors.leftMargin: 30
+
+        spacing: 15
+
+        Widgets.LargeText { text: "Difficulty" }
+        Widgets.LargeText { text: "Scroll Speed" }
+        Widgets.LargeText { text: "Unit Colour" }
+        Widgets.LargeText { text: "Language" }
+        Widgets.LargeText { text: "Radar" }
+    }
+
+    // Options
+    Column {
+        width: 165
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: labels.right
+
+        spacing: 15
+        Widgets.ClickSelect {width: parent.width; options: ["Normal", "Hard", "Easy"]}
+        Widgets.Slider {width: parent.width; value: 0}
+        Widgets.ImageSelectV2 {
+            id: color
+            width: parent.width; height: 25
+            model: ListModel {
+                ListElement {
+                    value: "green"
+                    defaultSource2: "image://imagemap/icon player0"
+                    hoverSource2: "image://imagemap/icon player0 hi"
+                    activeSource2: "image://imagemap/icon player0 hi"
+                    state2: "active"
+                }
+                ListElement {
+                    value: "orange"
+                    defaultSource2: "image://imagemap/icon player1"
+                    hoverSource2: "image://imagemap/icon player1 hi"
+                    activeSource2: "image://imagemap/icon player1 hi"
+                    state2: ""
+                }
+                ListElement {
+                    value: "grey"
+                    defaultSource2: "image://imagemap/icon player2"
+                    hoverSource2: "image://imagemap/icon player2 hi"
+                    activeSource2: "image://imagemap/icon player2 hi"
+                    state2: ""
+                }
+                ListElement {
+                    value: "black"
+                    defaultSource2: "image://imagemap/icon player3"
+                    hoverSource2: "image://imagemap/icon player3 hi"
+                    activeSource2: "image://imagemap/icon player3 hi"
+                    state2: ""
+                }
+                ListElement {
+                    value: "red"
+                    defaultSource2: "image://imagemap/icon player4"
+                    hoverSource2: "image://imagemap/icon player4 hi"
+                    activeSource2: "image://imagemap/icon player4 hi"
+                    state2: ""
+                }
+            }
+        }
+        Widgets.ClickSelect {width: parent.width; options: ["System locale", "German", "English"]}
+        Widgets.ClickSelect {width: parent.width; options: ["Rotating", "Fixed"]}
+    }
 }

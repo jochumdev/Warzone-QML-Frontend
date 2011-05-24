@@ -17,7 +17,32 @@ Item {
         }
     }
 
-    Widgets.MenuTextButton { text: "Voice Volume"; width: parent.width; bwidth: 248; y: 40; }
-    Widgets.MenuTextButton { text: "FX Volume"; width: parent.width; bwidth: 248; y: 80; }
-    Widgets.MenuTextButton { text: "Music Volume"; width: parent.width; bwidth: 248; y: 120; }
+    // Labels
+    Column {
+        id: labels
+        width: 280
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: parent.left
+        anchors.leftMargin: 30
+
+        spacing: 15
+
+        Widgets.LargeText { text: "Voice Volume" }
+        Widgets.LargeText { text: "FX Volume*" }
+        Widgets.LargeText { text: "Music Volume" }
+    }
+
+    // Options
+    Column {
+        width: 165
+        anchors.top: parent.top
+        anchors.topMargin: 56
+        anchors.left: labels.right
+
+        spacing: 24
+        Widgets.Slider {width: parent.width; value: 0}
+        Widgets.Slider {width: parent.width; value: 0}
+        Widgets.Slider {width: parent.width; value: 0}
+    }
 }

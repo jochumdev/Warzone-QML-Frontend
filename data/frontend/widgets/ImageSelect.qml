@@ -7,7 +7,7 @@ Rectangle {
 
     signal clicked
 
-    property int   spacing      : 40
+    property int   spacing      : 1
     property alias image1Source : image1.defaultSource
     property alias image2Source : image2.defaultSource
     property alias image3Source : image3.defaultSource
@@ -18,34 +18,35 @@ Rectangle {
     property alias image2Active : image2.activeSource
     property alias image3Active : image3.activeSource
 
+    // Allows to disable a single item.
     property alias image1State  : image1.state
     property alias image2State  : image2.state
     property alias image3State  : image3.state
 
 
-    Widgets.ImageButton {
-        id: image1
-        onClicked: {
-            parent.state = "1";
-            parent.clicked();
+    Row {
+        spacing: parent.spacing
+
+        Widgets.ImageButton {
+            id: image1
+            onClicked: {
+                container.state = "1";
+                container.clicked();
+            }
         }
-    }
-    Widgets.ImageButton {
-        id: image2
-        anchors.left:  image1.right
-        anchors.leftMargin: parent.spacing
-        onClicked: {
-            parent.state = "2";
-            parent.clicked();
+        Widgets.ImageButton {
+            id: image2
+            onClicked: {
+                container.state = "2";
+                container.clicked();
+            }
         }
-    }
-    Widgets.ImageButton {
-        id: image3
-        anchors.left:  image2.right
-        anchors.leftMargin: parent.spacing
-        onClicked: {
-            parent.state = "3";
-            parent.clicked();
+        Widgets.ImageButton {
+            id: image3
+            onClicked: {
+                container.state = "3";
+                container.clicked();
+            }
         }
     }
 
