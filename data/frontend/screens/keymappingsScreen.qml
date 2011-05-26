@@ -16,7 +16,7 @@ Item {
     // Left sideText
     Widgets.SideText {
         id: leftSideText
-        text: "Key Mapping"
+        text: wz.tr("Key Mapping")
         width: keymappingsScreen.height
         y: keymappingsScreen.height - 31 // 31 = text Height
         x: 2
@@ -65,7 +65,7 @@ Item {
                 Text {
                     anchors.left: parent.left
                     anchors.leftMargin: 2
-                    text: optionText
+                    text: wz.tr(optionText)
                     color: "white"
                     smooth: true
                     font.family: "DejaVu Sans"

@@ -9,6 +9,8 @@ namespace Imagemap {
 }
 class QPixmap;
 
+namespace Frontend {
+
 class QMLImagemapProvider : public QDeclarativeImageProvider
 {
 public:
@@ -25,5 +27,7 @@ private:
     QHash<QString, Imagemap::Map*> m_maps;
     QString m_basepath;
 };
+
+} // namespace Frontend
 
 #endif // #ifndef FRONTEND_IMAGEPROVIDER_H

@@ -7,13 +7,16 @@ Item {
     width: parent.width
     height: parent.height
 
+    Component.onCompleted: {
+        sideText.text = wz.tr("Graphics Options")
+    }
+
     Widgets.ImageButton {
         defaultSource: "image://imagemap/icon back"
         hoverSource: "image://imagemap/icon back hi"
         x: 5; y: 5
         onClicked: {
-            graphicsOptionsMenu.destroy();
-            createMenu("optionsMenu");
+            createMenu("menu/options.qml");
         }
     }
 
@@ -23,7 +26,7 @@ Item {
         anchors.left: parent.left
         anchors.leftMargin: 50
 
-        text: "* Takes effect on game restart"
+        text: wz.tr("* Takes effect on game restart")
         color: "white"
         smooth: true
         font.family: "DejaVu Sans"
@@ -41,11 +44,11 @@ Item {
 
         spacing: 15
 
-        Widgets.LargeText { text: "Graphics Mode*" }
-        Widgets.LargeText { text: "Resolution*" }
-        Widgets.LargeText { text: "Texture Size" }
-        Widgets.LargeText { text: "Vertical Sync*" }
-        Widgets.LargeText { text: "FSAA*" }
+        Widgets.LargeText { text: wz.tr("Graphics Mode*") }
+        Widgets.LargeText { text: wz.tr("Resolution*") }
+        Widgets.LargeText { text: wz.tr("Texture Size") }
+        Widgets.LargeText { text: wz.tr("Vertical Sync*") }
+        Widgets.LargeText { text: wz.tr("FSAA*") }
     }
 
     // Options
@@ -58,36 +61,36 @@ Item {
         spacing: 15
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Windowed", "Fullscreen"];
-            value: config.getValue("fullscreen") ? 1 : 0;
-            onValueChanged: config.setValue("fullscreen", (value == 1))
+            options: [wz.tr("Windowed"), wz.tr("Fullscreen")];
+            value: wz.getConfigValue("fullscreen") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("fullscreen", (value == 1))
         }
         Widgets.ClickSelect {
             width: parent.width;
             options: ["1024 x 768", "1920 x 1080"]
-            value: options.indexOf(config.getValue("resolution"))
-            onValueChanged: config.setValue("resolution", options[value])
+            value: options.indexOf(wz.getConfigValue("resolution"))
+            onValueChanged: wz.setConfigValue("resolution", options[value])
         }
         Widgets.ClickSelect {
             width: parent.width;
             options: ["128", "256", "512", "1024", "2048"]
-            value: options.indexOf(config.getValue("textureSize"))
-            onValueChanged: config.setValue("textureSize", options[value])
+            value: options.indexOf(wz.getConfigValue("textureSize"))
+            onValueChanged: wz.setConfigValue("textureSize", options[value])
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Off", "On"]
-            value: config.getValue("vsync") ? 1 : 0;
-            onValueChanged: config.setValue("vsync", (value == 1))
+            options: [wz.tr("Off"), wz.tr("On")]
+            value: wz.getConfigValue("vsync") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("vsync", (value == 1))
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Off", "2X", "4X", "8X"]
+            options: [wz.tr("Off"), "2X", "4X", "8X"]
             value: {
-                var tmp =  config.getValue("fsaa");
+                var tmp =  wz.getConfigValue("fsaa");
                 (tmp == 0 ? 0 : options.indexOf(tmp+"X"))
             }
-            onValueChanged: config.setValue("fsaa", (value == 0 ? 0 : options[value].substr(0, options[value].length-1)))
+            onValueChanged: wz.setConfigValue("fsaa", (value == 0 ? 0 : options[value].substr(0, options[value].length-1)))
         }
     }
 }

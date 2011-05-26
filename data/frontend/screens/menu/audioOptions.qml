@@ -7,13 +7,16 @@ Item {
     width: parent.width
     height: parent.height
 
+    Component.onCompleted: {
+        sideText.text = wz.tr("Audio Options")
+    }
+
     Widgets.ImageButton {
         defaultSource: "image://imagemap/icon back"
         hoverSource: "image://imagemap/icon back hi"
         x: 5; y: 5
         onClicked: {
-            audioOptionsMenu.destroy();
-            createMenu("optionsMenu");
+            createMenu("menu/options.qml");
         }
     }
 
@@ -28,9 +31,9 @@ Item {
 
         spacing: 15
 
-        Widgets.LargeText { text: "Voice Volume" }
-        Widgets.LargeText { text: "FX Volume" }
-        Widgets.LargeText { text: "Music Volume" }
+        Widgets.LargeText { text: wz.tr("Voice Volume") }
+        Widgets.LargeText { text: wz.tr("FX Volume") }
+        Widgets.LargeText { text: wz.tr("Music Volume") }
     }
 
     // Options
@@ -41,8 +44,8 @@ Item {
         anchors.left: labels.right
 
         spacing: 24
-        Widgets.Slider {width: parent.width; value: config.getValue("voicevol"); onValueChanged: config.setValue("voicevol", value)}
-        Widgets.Slider {width: parent.width; value: config.getValue("fxvol"); onValueChanged: config.setValue("fxvol", value)}
-        Widgets.Slider {width: parent.width; value: config.getValue("cdvol"); onValueChanged: config.setValue("cdvol", value)}
+        Widgets.Slider {width: parent.width; value: wz.getConfigValue("voicevol"); onValueChanged: wz.setConfigValue("voicevol", value)}
+        Widgets.Slider {width: parent.width; value: wz.getConfigValue("fxvol"); onValueChanged: wz.setConfigValue("fxvol", value)}
+        Widgets.Slider {width: parent.width; value: wz.getConfigValue("cdvol"); onValueChanged: wz.setConfigValue("cdvol", value)}
     }
 }

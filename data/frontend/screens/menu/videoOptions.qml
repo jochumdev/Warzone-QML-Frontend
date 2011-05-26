@@ -7,13 +7,16 @@ Item {
     width: parent.width
     height: parent.height
 
+    Component.onCompleted: {
+        sideText.text = wz.tr("Video Options")
+    }
+
     Widgets.ImageButton {
         defaultSource: "image://imagemap/icon back"
         hoverSource: "image://imagemap/icon back hi"
         x: 5; y: 5
         onClicked: {
-            videoOptionsMenu.destroy();
-            createMenu("optionsMenu");
+            createMenu("menu/options.qml");
         }
     }
 
@@ -28,12 +31,12 @@ Item {
 
         spacing: 15
 
-        Widgets.LargeText { text: "Video Playback" }
-        Widgets.LargeText { text: "Scanlines" }
-        Widgets.LargeText { text: "Screen Shake" }
-        Widgets.LargeText { text: "Fog" }
-        Widgets.LargeText { text: "Subtitles" }
-        Widgets.LargeText { text: "Shadows" }
+        Widgets.LargeText { text: wz.tr("Video Playback") }
+        Widgets.LargeText { text: wz.tr("Scanlines") }
+        Widgets.LargeText { text: wz.tr("Screen Shake") }
+        Widgets.LargeText { text: wz.tr("Fog") }
+        Widgets.LargeText { text: wz.tr("Subtitles") }
+        Widgets.LargeText { text: wz.tr("Shadows") }
     }
 
     // Options
@@ -46,42 +49,42 @@ Item {
         spacing: 15
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Fullscreen", "1X", "2X"]
+            options: [wz.tr("Fullscreen"), "1X", "2X"]
             value: {
-                var tmp = config.getValue("FMVmode");
+                var tmp = wz.getConfigValue("FMVmode");
                 (tmp == 0 ? 0 : options.indexOf(tmp+"X"))
             }
-            onValueChanged: config.setValue("fsaa", (value == 0 ? 0 : options[value].substr(0, options[value].length-1)))
+            onValueChanged: wz.setConfigValue("fsaa", (value == 0 ? 0 : options[value].substr(0, options[value].length-1)))
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Off", "On"]
-            value: config.getValue("scanlines") ? 1 : 0;
-            onValueChanged: config.setValue("scanlines", (value == 1))
+            options: [wz.tr("Off"), wz.tr("On")]
+            value: wz.getConfigValue("scanlines") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("scanlines", (value == 1))
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Off", "On"]
-            value: config.getValue("shake") ? 1 : 0;
-            onValueChanged: config.setValue("shake", (value == 1))
+            options: [wz.tr("Off"), wz.tr("On")]
+            value: wz.getConfigValue("shake") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("shake", (value == 1))
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Mist", "Fog Of War"]
-            value: config.getValue("visfog") ? 1 : 0;
-            onValueChanged: config.setValue("visfog", (value == 1))
+            options: [wz.tr("Mist"), wz.tr("Fog Of War")]
+            value: wz.getConfigValue("visfog") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("visfog", (value == 1))
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Off", "On"]
-            value: config.getValue("subtitles") ? 1 : 0;
-            onValueChanged: config.setValue("subtitles", (value == 1))
+            options: [wz.tr("Off"), wz.tr("On")]
+            value: wz.getConfigValue("subtitles") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("subtitles", (value == 1))
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Off", "On"]
-            value: config.getValue("shadows") ? 1 : 0;
-            onValueChanged: config.setValue("shadows", (value == 1))
+            options: [wz.tr("Off"), wz.tr("On")]
+            value: wz.getConfigValue("shadows") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("shadows", (value == 1))
         }
     }
 }

@@ -31,12 +31,16 @@ Item {
     // Internal: Indicates that we are in the player screen.
     property bool       _isHosting  :       false
 
-    property variant    subScreen
+    property variant    _subScreen
 
-    function createMenu(name)
+    function createMenu(file)
     {
+        if (hostGameScreen._subScreen) {
+            hostGameScreen._subScreen.destroy();
+        }
+
         try {
-            var myComponent = Qt.createComponent(Support.hostGameList[name][0]);
+            var myComponent = Qt.createComponent(file);
         }
         catch(e) { console.log("Failed to create hostgame subwidget: " + name); return; }
 
@@ -46,14 +50,13 @@ Item {
             return;
         }
 
-        rightSideText.text = Support.hostGameList[name][1]
-        hostGameScreen.subScreen = myComponent.createObject(rightBox)
+        hostGameScreen._subScreen = myComponent.createObject(rightBox)
     }
 
     // Left sideText
     Widgets.SideText {
         id: leftSideText
-        text: "Options"
+        text: wz.tr("Options")
         width: 329
         y: leftBox.height - 31 // 31 = text Height
         x: 2
@@ -81,10 +84,9 @@ Item {
                     window.loadMenu = window.backMenu;
                     createScreen(window.backScreen);
                 } else {
-                    hostGameScreen.subScreen.destroy();
+                    hostGameScreen._subScreen.destroy();
 
-                    if (!hostGameScreen.isSkirmish)
-                    {
+                    if (!hostGameScreen.isSkirmish) {
                         passwordButton.state = ""
                         passwordInput.state = ""
                         hostnameInput.state = ""
@@ -125,7 +127,7 @@ Item {
                 passwordInput.state = "off"
                 hostGameButton.opacity = 0
                 hostGameScreen._isHosting = true
-                createMenu("players")
+                createMenu("hostGame/players.qml")
                 chatBox.clear()
                 if (!hostGameScreen.isSkirmish) {
                     chatBox.addSystemMessage("You'r game is not listed. This is a dummy, haha!")
@@ -140,16 +142,16 @@ Item {
             y: 2
             Widgets.SingleLineEdit {
                 id: playername
-                text: config.getValue("playerName")
+                text: wz.getConfigValue("playerName")
                 maximumLength: 14
 
                 onAccepted: {
-                    if (config.getValue("playerName") != text) {
+                    if (wz.getConfigValue("playerName") != text) {
                         if (!hostGameScreen.isSkirmish) {
-                            chatBox.addLine(config.getValue("playerName") + " -> " + text);
+                            chatBox.addLine(wz.getConfigValue("playerName") + " -> " + text);
                         }
 
-                        config.setValue("playerName", text)
+                        wz.setConfigValue("playerName", text)
 
                         if (playersModel.count) {
                             playersModel.setProperty(hostGameScreen.playerIndex, "name", text)
@@ -175,7 +177,7 @@ Item {
             Widgets.SingleLineEdit {
                 id: hostnameInput
 
-                text: (hostGameScreen.isSkirmish ? "One-Player Skirmish" : config.getValue("gameName"))
+                text: (hostGameScreen.isSkirmish ? "One-Player Skirmish" : wz.getConfigValue("gameName"))
 
                 state: (hostGameScreen.isSkirmish ? "off" : "")
             }
@@ -201,13 +203,13 @@ Item {
 
                     onClicked: {
                         mapButton.state = "activeOff";
-                        createMenu("mapSelect");
+                        createMenu("hostGame/mapSelect.qml");
                     }
                 }
             }
             Widgets.SingleLineEdit {
                 id: passwordInput
-                text: "Enter password here"
+                text: wz.tr("Enter password here")
 
                 state: (hostGameScreen.isSkirmish ? "off" : "")
 
@@ -237,7 +239,7 @@ Item {
                 }
             }
             Widgets.SingleLineEdit {
-                text: "Scavengers"; readOnly: true
+                text: wz.tr("Scavengers"); readOnly: true
                 Widgets.ImageSelect {
                     id: scavs
                     x: 105
@@ -251,7 +253,7 @@ Item {
                 }
             }
             Widgets.SingleLineEdit {
-                text: "Fog"; readOnly: true
+                text: wz.tr("Fog"); readOnly: true
                 Widgets.ImageSelect {
                     id: fog
                     x: 105
@@ -263,12 +265,12 @@ Item {
                     image2Hover: "image://imagemap/button fog on hi"
                     image2Active: "image://imagemap/button active"
 
-                    state: config.getValue("fog") ? 2 : 1
-                    onStateChanged: state == 2 ? config.setValue("fog", true) : config.setValue("fog", false)
+                    state: wz.getConfigValue("fog") ? 2 : 1
+                    onStateChanged: state == 2 ? wz.setConfigValue("fog", true) : wz.setConfigValue("fog", false)
                 }
             }
             Widgets.SingleLineEdit {
-                text: "Alliances"; readOnly: true
+                text: wz.tr("Alliances"); readOnly: true
                 Widgets.ImageSelect {
                     id: alliances
                     x: 105
@@ -283,7 +285,7 @@ Item {
                     image3Hover: "image://imagemap/button fixed teams hi"
                     image3Active: "image://imagemap/button active"
 
-                    state: config.getValue("alliance") + 1
+                    state: wz.getConfigValue("alliance") + 1
                     onStateChanged: {
                         if (alliances.state == 3) {
                             hostGameScreen.fixedTeams = true
@@ -291,12 +293,12 @@ Item {
                         else {
                             hostGameScreen.fixedTeams = false
                         }
-                        config.setValue("alliance", state - 1)
+                        wz.setConfigValue("alliance", state - 1)
                     }
                 }
             }
             Widgets.SingleLineEdit {
-                text: "Power"; readOnly: true
+                text: wz.tr("Power"); readOnly: true
                 Widgets.ImageSelect {
                     id: power
                     x: 105
@@ -311,12 +313,28 @@ Item {
                     image3Hover: "image://imagemap/button high power hi"
                     image3Active: "image://imagemap/button active"
 
-                    state: config.getValue("power") + 1
-                    onStateChanged: config.setValue("power", state - 1)
+                    state: {
+                        var cfg = wz.getConfigValue("power");
+                        switch (cfg)
+                        {
+                            case 400:
+                                1
+                            break;
+                            case 700:
+                                2
+                            break;
+                            case 1000:
+                                3
+                            break;
+                        }
+                    }
+                    onStateChanged: {
+                        wz.setConfigValue("power", (state == 1 ? 400 : (state == 2 ? 700 : 1000)))
+                    }
                 }
             }
             Widgets.SingleLineEdit {
-                text: "Base"; readOnly: true
+                text: wz.tr("Base"); readOnly: true
                 Widgets.ImageSelect {
                     id: base
                     x: 105
@@ -331,12 +349,12 @@ Item {
                     image3Hover: "image://imagemap/button full bases hi"
                     image3Active: "image://imagemap/button active"
 
-                    state: config.getValue("base") + 1
-                    onStateChanged: config.setValue("base", state - 1)
+                    state: wz.getConfigValue("base") + 1
+                    onStateChanged: wz.setConfigValue("base", state - 1)
                 }
             }
             Widgets.SingleLineEdit {
-                text: "Map Preview"; readOnly: true
+                text: wz.tr("Map Preview"); readOnly: true
                 Widgets.ImageButton {
                     id: fogg_show
                     x: 141
@@ -386,7 +404,7 @@ Item {
     // Bottom sideText
     Widgets.SideText {
         id: bottomSideText
-        text: "Chat"
+        text: wz.tr("Chat")
         width: bottomBox.height
         y: 430 // This should be calculated.
         x: 2

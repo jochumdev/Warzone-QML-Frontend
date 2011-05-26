@@ -14,36 +14,29 @@ Image {
     property string backMenu
     property string loadMenu
 
+    property variant _subScreen
+
     Component.onCompleted: {
-        window.loadMenu = "mainMenu"
-        createScreen("menuScreen")
+        window.loadMenu = "menu/main.qml"
+        createScreen("screens/menuScreen.qml")
     }
 
-    function createScreen(name)
+    function createScreen(file)
     {
+        if (window._subScreen) {
+            window._subScreen.destroy();
+        }
+
         try {
-            var myComponent = Qt.createComponent(Support.screenList[name][0]);
+            var myComponent = Qt.createComponent(file);
         }
         catch(e) { console.log("Failed to load screen: " + name); return; }
 
-        if (myComponent == null || myComponent.status == Component.Error)
-        {
+        if (myComponent == null || myComponent.status == Component.Error) {
             console.log(myComponent.errorString());
             return;
         }
 
-        myComponent.createObject(window)
-    }
-
-    // Show the pumpkin(g)
-    function quit()
-    {
-        var myComponent = Qt.createComponent("quit.qml")
-        if (myComponent == null || myComponent.status == Component.Error)
-        {
-            console.log(myComponent.errorString());
-            return;
-        }
-        myComponent.createObject(window)
+        window._subScreen = myComponent.createObject(window)
     }
 }

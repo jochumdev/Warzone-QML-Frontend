@@ -7,25 +7,27 @@ Item {
     width: parent.width
     height: parent.height
 
+    Component.onCompleted: {
+        sideText.text = wz.tr("Single Player")
+    }
+
     Widgets.ImageButton {
         defaultSource: "image://imagemap/icon back"
         hoverSource: "image://imagemap/icon back hi"
         x: 5; y: 5
         onClicked: {
-            singlePlayerMenu.destroy();
-            createMenu("mainMenu");
+            createMenu("menu/main.qml");
         }
     }
 
-    Widgets.MenuTextButton { text: "New Campaign"; width: parent.width; bwidth: 248; y: 40; }
+    Widgets.MenuTextButton { text: wz.tr("New Campaign"); width: parent.width; bwidth: 248; y: 40; }
     Widgets.MenuTextButton {
-        text: "Start Skirmish Game"; width: parent.width; bwidth: 248; y: 80;
+        text: wz.tr("Start Skirmish Game"); width: parent.width; bwidth: 248; y: 80;
         onClicked: {
-            destroyScreen();
-            window.backScreen = "menuScreen"; window.backMenu = "singlePlayerMenu";
-            createScreen("hostGameScreen");
+            window.backScreen = "screens/menuScreen.qml"; window.backMenu = "menu/singlePlayer.qml";
+            createScreen("screens/hostGameScreen.qml");
         }
     }
-    Widgets.MenuTextButton { text: "Challenges"; width: parent.width; bwidth: 248; y: 120; }
-    Widgets.MenuTextButton { text: "Load Game"; width: parent.width; bwidth: 248; y: 160; }
+    Widgets.MenuTextButton { text: wz.tr("Challenges"); width: parent.width; bwidth: 248; y: 120; }
+    Widgets.MenuTextButton { text: wz.tr("Load Game"); width: parent.width; bwidth: 248; y: 160; }
 }

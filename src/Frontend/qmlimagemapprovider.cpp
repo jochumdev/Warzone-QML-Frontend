@@ -3,9 +3,8 @@
 #include <lib/Imagemap/loader.h>
 
 #include <QtGui/QPixmap>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
+
+using namespace Frontend;
 
 QPixmap QMLImagemapProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {

@@ -61,6 +61,8 @@ Item {
     }
 
     Component.onCompleted: {
+        rightSideText.text = wz.tr("Select Map")
+
         switch(hostGameScreen.techlevel) {
             case 1:
                 setTechLevel(_t1, 1, false);

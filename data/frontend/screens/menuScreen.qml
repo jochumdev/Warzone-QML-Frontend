@@ -1,6 +1,5 @@
 import QtQuick 1.0
 import "../widgets" as Widgets
-import "../functions.js" as Support
 
 Item {
     id: menuScreen
@@ -10,14 +9,26 @@ Item {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
 
+    property variant _subMenu
+
     Component.onCompleted: createMenu(window.loadMenu)
 
-    function createMenu(name)
+    /**
+     * Destroys the old Menu and loads the new one.
+     *
+     * @param string    file            Load the submenu from this file,
+     *                                  relative paths must be from THIS file.
+     */
+    function createMenu(file)
     {
-        try {
-            var myComponent = Qt.createComponent(Support.menuList[name][0]);
+        if (menuScreen._subMenu) {
+            menuScreen._subMenu.destroy();
         }
-        catch(e) { console.log("Failed to load menu: " + name); return; }
+
+        try {
+            var myComponent = Qt.createComponent(file);
+        }
+        catch(e) { console.log("Failed to load menu: " + file); return; }
 
         if (myComponent == null || myComponent.status == Component.Error)
         {
@@ -25,8 +36,7 @@ Item {
             return;
         }
 
-        myComponent.createObject(menuHolder)
-        sideText.text = Support.menuList[name][1]
+        menuScreen._subMenu = myComponent.createObject(menuHolder)
     }
 
     function destroyScreen()

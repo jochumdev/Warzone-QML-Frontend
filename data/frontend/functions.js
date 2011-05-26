@@ -1,42 +1,6 @@
 .pragma library
 
 // This library should be replaced by C++ ingame stuff.
-
-var menuList = {
-    "mainMenu"              :       ["menu/main.qml", "Main Menu"],
-    "singlePlayerMenu"      :       ["menu/singlePlayer.qml", "Single Player"],
-    "optionsMenu"           :       ["menu/options.qml", "Options"],
-    "tutorialsMenu"         :       ["menu/tutorials.qml", "Tutorials"],
-
-    "gameOptionsMenu"       :       ["menu/gameOptions.qml", "Game Options"],
-    "graphicsOptionsMenu"   :       ["menu/graphicsOptions.qml", "Graphics Options"],
-    "videoOptionsMenu"      :       ["menu/videoOptions.qml", "Video Options"],
-    "audioOptionsMenu"      :       ["menu/audioOptions.qml", "Audio Options"],
-    "mouseOptionsMenu"      :       ["menu/mouseOptions.qml", "Mouse Options"],
-}
-
-
-// Full Screen templates
-// Widget(sets) will be loaded into this templates.
-var screenList = {
-    "menuScreen"            :       ["screens/menuScreen.qml"],
-    "hostGameScreen"        :       ["screens/hostGameScreen.qml"],
-    "limitsScreen"          :       [],
-    "keymappingsScreen"     :       ["screens/keymappingsScreen.qml", "Key Mapping"]
-}
-
-var hostGameList = {
-    "mapSelect"             :       ["hostGame/mapSelect.qml", "Select Map"],
-    "players"               :       ["hostGame/players.qml", "Players"]
-}
-
-var backgrounds = ["Background 0",
-                   "Background 1",
-                   "Background 2",
-                   "Background 3",
-                   "Background 4",
-                   "Background 5"]
-
 var maps = {
      "Startup"      : {"players": 2, "techlevels": [1,2,3]},
      "UrbanChaos"   : {"players": 2, "techlevels": [1,2,3]},
@@ -74,6 +38,13 @@ var maps = {
      "cockate"      : {"players": 8, "techlevels": [1,2,3]},
      "SquaredV7"    : {"players": 8, "techlevels": [1,2,3]},
 }
+
+var backgrounds = ["Background 0",
+                   "Background 1",
+                   "Background 2",
+                   "Background 3",
+                   "Background 4",
+                   "Background 5"]
 
 function getRandBackground()
 {

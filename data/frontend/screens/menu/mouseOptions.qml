@@ -7,13 +7,16 @@ Item {
     width: parent.width
     height: parent.height
 
+    Component.onCompleted: {
+        sideText.text = wz.tr("Mouse Options")
+    }
+
     Widgets.ImageButton {
         defaultSource: "image://imagemap/icon back"
         hoverSource: "image://imagemap/icon back hi"
         x: 5; y: 5
         onClicked: {
-            mouseOptionsMenu.destroy();
-            createMenu("optionsMenu");
+            createMenu("menu/options.qml");
         }
     }
 
@@ -28,10 +31,10 @@ Item {
 
         spacing: 15
 
-        Widgets.LargeText { text: "Reverse Rotation" }
-        Widgets.LargeText { height: 60;  text: "Trap Cursor" }
-        Widgets.LargeText { text: "Switch Mouse Buttons" }
-        Widgets.LargeText { text: "Rotate Screen" }
+        Widgets.LargeText { text: wz.tr("Reverse Rotation") }
+        Widgets.LargeText { height: 60;  text: wz.tr("Trap Cursor") }
+        Widgets.LargeText { text: wz.tr("Switch Mouse Buttons") }
+        Widgets.LargeText { text: wz.tr("Rotate Screen") }
     }
 
     // Options
@@ -44,27 +47,27 @@ Item {
         spacing: 15
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Off", "On"]
-            value: config.getValue("mouseflip") ? 1 : 0;
-            onValueChanged: config.setValue("mouseflip", (value == 1))
+            options: [wz.tr("Off"), wz.tr("On")]
+            value: wz.getConfigValue("mouseflip") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("mouseflip", (value == 1))
         }
         Widgets.ClickSelect {
             width: parent.width; height: 60;
-            options: ["Off", "On"]
-            value: config.getValue("trapCursor") ? 1 : 0;
-            onValueChanged: config.setValue("trapCursor", (value == 1))
+            options: [wz.tr("Off"), wz.tr("On")]
+            value: wz.getConfigValue("trapCursor") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("trapCursor", (value == 1))
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Off", "On"]
-            value: config.getValue("RightClickOrders") ? 1 : 0;
-            onValueChanged: config.setValue("RightClickOrders", (value == 1))
+            options: [wz.tr("Off"), wz.tr("On")]
+            value: wz.getConfigValue("RightClickOrders") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("RightClickOrders", (value == 1))
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Right Mouse", "Middle Mouse"]
-            value: config.getValue("MiddleClickRotate") ? 1 : 0;
-            onValueChanged: config.setValue("MiddleClickRotate", (value == 1))
+            options: [wz.tr("Right Mouse"), wz.tr("Middle Mouse")]
+            value: wz.getConfigValue("MiddleClickRotate") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("MiddleClickRotate", (value == 1))
         }
     }
 }

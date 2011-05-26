@@ -1,10 +1,18 @@
-#include "config.h"
+#include "wzhelper.h"
 
 #include "QtCore/QVariant"
 #include "QtCore/QString"
 #include "QtCore/QSettings"
 
-Config::Config(const QString &configfile)
+// libc
+#include <libintl.h>
+
+using namespace Frontend;
+
+/**
+ * Ment to be removed when integrated into warzone.
+ */
+WzHelper::WzHelper(const QString &configfile)
 {
     m_settings = new QSettings(configfile, QSettings::IniFormat);
     if (m_settings->status() != QSettings::NoError)
@@ -13,10 +21,40 @@ Config::Config(const QString &configfile)
     }
 }
 
+Q_INVOKABLE QString WzHelper::tr(const QString& text, const QString &domain)
+{
+    if (domain.isNull())
+    {
+        return QString::fromUtf8(dgettext(NULL, text.toUtf8().constData()));
+    }
+    else
+    {
+        return QString::fromUtf8(dgettext(domain.toUtf8().constData(),
+                                          text.toUtf8().constData()));
+    }
+
+}
+
+Q_INVOKABLE QString WzHelper::tr(const QString& singular, const QString &plural, int n, const QString &domain)
+{
+    if (domain.isNull())
+    {
+        return QString::fromUtf8(dngettext(NULL,
+                                 singular.toUtf8().constData(),
+                                 plural.toUtf8().constData(), n));
+    }
+    else
+    {
+        return QString::fromUtf8(dngettext(domain.toUtf8().constData(),
+                                           singular.toUtf8().constData(),
+                                           plural.toUtf8().constData(), n));
+    }
+}
+
 /**
  * This would normaly call one of the thousands setters Warzone has.
  */
-Q_INVOKABLE void Config::setValue(const QString& name, const QVariant& value)
+Q_INVOKABLE void WzHelper::setConfigValue(const QString& name, const QVariant& value)
 {
     qDebug() << "Setting:" << name << "=" << value;
 
@@ -171,7 +209,7 @@ Q_INVOKABLE void Config::setValue(const QString& name, const QVariant& value)
 /**
  * This would normaly call one of the thousands getters Warzone has.
  */
-Q_INVOKABLE const QVariant Config::getValue(const QString& name)
+Q_INVOKABLE const QVariant WzHelper::getConfigValue(const QString& name)
 {
     // START: Audio Options
     if (name == "voicevol")

@@ -36,6 +36,10 @@ Loader::~Loader()
 
 bool Loader::addImagemap(const QString& file)
 {
+    if (d->m_maps.contains(file)) {
+        return false;
+    }
+
     Map* map = new Map(file);
     if (map->errorCode() != 0)
     {

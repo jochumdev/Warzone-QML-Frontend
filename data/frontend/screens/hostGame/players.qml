@@ -228,7 +228,7 @@ Item {
                 anchors.leftMargin: 5
                 verticalAlignment: Text.AlignVCenter
 
-                text: "Closed"
+                text: wz.tr("Closed")
 
                 color: "#aeaeb7"
                 smooth: true
@@ -263,7 +263,7 @@ Item {
                 anchors.leftMargin: 5
                 verticalAlignment: Text.AlignVCenter
 
-                text: "Open"
+                text: wz.tr("Open")
 
                 color: "#aeaeb7"
                 smooth: true
@@ -404,7 +404,7 @@ Item {
                 anchors.leftMargin: 5
                 verticalAlignment: Text.AlignVCenter
 
-                text: "Click to take player slot " + slotIndex
+                text: wz.tr("Click to take player slot %1").arg(slotIndex)
 
                 color: "#aeaeb7"
                 smooth: true
@@ -462,8 +462,10 @@ Item {
     // END: Slot selector.
 
     Component.onCompleted: {
+        rightSideText.text = wz.tr("Players")
+
         playersModel.clear()
-        playersModel.append({isAI: false, team: 0, playerColor: 0, name: config.getValue("playerName"), isReady: false, isHost: true, isOpen: false,
+        playersModel.append({isAI: false, team: 0, playerColor: 0, name: wz.getConfigValue("playerName"), isReady: false, isHost: true, isOpen: false,
                             statsPlayed: 0, statsWins: 0, statsLosses: 0, statsTotalKills: 0, statsTotalScore: 0});
 
         if (hostGameScreen.isSkirmish)

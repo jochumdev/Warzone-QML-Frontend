@@ -7,13 +7,16 @@ Item {
     width: parent.width
     height: parent.height
 
+    Component.onCompleted: {
+        sideText.text = wz.tr("Game Options")
+    }
+
     Widgets.ImageButton {
         defaultSource: "image://imagemap/icon back"
         hoverSource: "image://imagemap/icon back hi"
         x: 5; y: 5
         onClicked: {
-            gameOptionsMenu.destroy();
-            createMenu("optionsMenu");
+            createMenu("menu/options.qml");
         }
     }
 
@@ -28,11 +31,11 @@ Item {
 
         spacing: 15
 
-        Widgets.LargeText { text: "Difficulty" }
-        Widgets.LargeText { text: "Scroll Speed" }
-        Widgets.LargeText { text: "Unit Colour" }
-        Widgets.LargeText { text: "Language" }
-        Widgets.LargeText { text: "Radar" }
+        Widgets.LargeText { text: wz.tr("Difficulty") }
+        Widgets.LargeText { text: wz.tr("Scroll Speed") }
+        Widgets.LargeText { text: wz.tr("Unit Colour") }
+        Widgets.LargeText { text: wz.tr("Language") }
+        Widgets.LargeText { text: wz.tr("Radar") }
     }
 
     // Options
@@ -45,15 +48,15 @@ Item {
         spacing: 15
         Widgets.ClickSelect {
             width: parent.width
-            options: ["Easy", "Normal", "Hard", "Tough", "Killer"]
-            value: config.getValue("difficulty")
-            onValueChanged: config.setValue("difficulty", value)
+            options: [wz.tr("Easy"), wz.tr("Normal"), wz.tr("Hard"), wz.tr("Tough"), wz.tr("Killer")]
+            value: wz.getConfigValue("difficulty")
+            onValueChanged: wz.setConfigValue("difficulty", value)
         }
         Widgets.Slider {
             width: parent.width
             maximum: 16
-            value: config.getValue("scroll") / 100
-            onValueChanged: config.setValue("scroll", value * 100)
+            value: wz.getConfigValue("scroll") / 100
+            onValueChanged: wz.setConfigValue("scroll", value * 100)
         }
         Widgets.ImageSelectV2 {
             id: color
@@ -91,23 +94,23 @@ Item {
                 }
             }
 
-            value: config.getValue("colour")
-            onValueChanged: config.setValue("colour", value)
+            value: wz.getConfigValue("colour")
+            onValueChanged: wz.setConfigValue("colour", value)
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["System locale", "German", "English"]
+            options: [wz.tr("System"), "German", "English"]
             value: {
-                var index = options.indexOf(config.getValue("language"));
+                var index = options.indexOf(wz.getConfigValue("language"));
                 (index == -1 ? 0 : index)
             }
-            onValueChanged: config.setValue("language", options[value])
+            onValueChanged: wz.setConfigValue("language", (value != 0 ? options[value] : ""))
         }
         Widgets.ClickSelect {
             width: parent.width;
-            options: ["Fixed", "Rotating"]
-            value: config.getValue("rotateRadar") ? 1 : 0;
-            onValueChanged: config.setValue("rotateRadar", (value == 1))
+            options: [wz.tr("Fixed"), wz.tr("Rotating")]
+            value: wz.getConfigValue("rotateRadar") ? 1 : 0;
+            onValueChanged: wz.setConfigValue("rotateRadar", (value == 1))
         }
     }
 }
