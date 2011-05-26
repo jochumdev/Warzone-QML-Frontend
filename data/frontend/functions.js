@@ -13,7 +13,6 @@ var menuList = {
     "videoOptionsMenu"      :       ["menu/videoOptions.qml", "Video Options"],
     "audioOptionsMenu"      :       ["menu/audioOptions.qml", "Audio Options"],
     "mouseOptionsMenu"      :       ["menu/mouseOptions.qml", "Mouse Options"],
-    "keyMappingMenu"        :       ["menu/keyMappings.qml", "Key Mapping"]
 }
 
 
@@ -22,7 +21,8 @@ var menuList = {
 var screenList = {
     "menuScreen"            :       ["screens/menuScreen.qml"],
     "hostGameScreen"        :       ["screens/hostGameScreen.qml"],
-    "limitsScreen"          :       []
+    "limitsScreen"          :       [],
+    "keymappingsScreen"     :       ["screens/keymappingsScreen.qml", "Key Mapping"]
 }
 
 var hostGameList = {

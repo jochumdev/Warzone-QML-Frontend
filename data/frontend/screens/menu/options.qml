@@ -22,5 +22,10 @@ Item {
     Widgets.MenuTextButton { text: "Video Options"; width: parent.width; bwidth: 248; y: 120; onClicked: {optionsMenu.destroy(), createMenu("videoOptionsMenu")} }
     Widgets.MenuTextButton { text: "Audio Options"; width: parent.width; bwidth: 248; y: 160; onClicked: {optionsMenu.destroy(), createMenu("audioOptionsMenu")} }
     Widgets.MenuTextButton { text: "Mouse Options"; width: parent.width; bwidth: 248; y: 200; onClicked: {optionsMenu.destroy(), createMenu("mouseOptionsMenu")} }
-    Widgets.MenuTextButton { text: "Key Mappings"; width: parent.width; bwidth: 248; y: 240; }
+    Widgets.MenuTextButton { text: "Key Mappings"; width: parent.width; bwidth: 248; y: 240;
+        onClicked: { destroyScreen();
+                     window.backScreen = "menuScreen"; window.backMenu = "optionsMenu";
+                     createScreen("keymappingsScreen");
+                   }
+    }
 }

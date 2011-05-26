@@ -29,7 +29,7 @@ Item {
         spacing: 15
 
         Widgets.LargeText { text: "Voice Volume" }
-        Widgets.LargeText { text: "FX Volume*" }
+        Widgets.LargeText { text: "FX Volume" }
         Widgets.LargeText { text: "Music Volume" }
     }
 
@@ -41,8 +41,8 @@ Item {
         anchors.left: labels.right
 
         spacing: 24
-        Widgets.Slider {width: parent.width; value: 0}
-        Widgets.Slider {width: parent.width; value: 0}
-        Widgets.Slider {width: parent.width; value: 0}
+        Widgets.Slider {width: parent.width; value: config.getValue("voicevol"); onValueChanged: config.setValue("voicevol", value)}
+        Widgets.Slider {width: parent.width; value: config.getValue("fxvol"); onValueChanged: config.setValue("fxvol", value)}
+        Widgets.Slider {width: parent.width; value: config.getValue("cdvol"); onValueChanged: config.setValue("cdvol", value)}
     }
 }

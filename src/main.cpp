@@ -10,8 +10,9 @@
 #include <lib/Imagemap/loader.h>
 #include <QtDeclarative/QDeclarativeView>
 #include <QtDeclarative/QDeclarativeEngine>
+#include <QtDeclarative/QDeclarativeContext>
 
-
+#include "Frontend/config.h"
 #include "Frontend/qmlimagemapprovider.h"
 
 int main(int argc, char *argv[])
@@ -38,18 +39,20 @@ int main(int argc, char *argv[])
     if (!Imagemap::Loader::instance().addImagemap(app.applicationDirPath() + "/../../data/frontend/images/imagemap.js"))
     {
         // abort() on errors.
-        qFatal(qPrintable(Imagemap::Loader::instance().errorString()));
+        qFatal("%s", qPrintable(Imagemap::Loader::instance().errorString()));
     }
 
     // Now setup the QML viewer
     QDeclarativeView *view = new QDeclarativeView;
     view->setViewport(glWidget);
-    //connect(viewer->engine(), SIGNAL(viewer->engine()->quit()), SLOT(close()));
     view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
     QMLImagemapProvider* improvider = new QMLImagemapProvider();
-    improvider->setBasePath("data");
     view->engine()->addImageProvider("imagemap", improvider);
+
+    Config config(app.applicationDirPath() + "/../../data/config");
+    view->rootContext()->setContextProperty("config", &config);
+
     view->setSource(QUrl::fromLocalFile(app.applicationDirPath() + "/../../data/frontend/main.qml"));
     view->show();
 

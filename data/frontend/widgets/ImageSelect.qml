@@ -5,8 +5,6 @@ Rectangle {
     id: container
     width: parent.width
 
-    signal clicked
-
     property int   spacing      : 1
     property alias image1Source : image1.defaultSource
     property alias image2Source : image2.defaultSource
@@ -31,21 +29,18 @@ Rectangle {
             id: image1
             onClicked: {
                 container.state = "1";
-                container.clicked();
             }
         }
         Widgets.ImageButton {
             id: image2
             onClicked: {
                 container.state = "2";
-                container.clicked();
             }
         }
         Widgets.ImageButton {
             id: image3
             onClicked: {
                 container.state = "3";
-                container.clicked();
             }
         }
     }

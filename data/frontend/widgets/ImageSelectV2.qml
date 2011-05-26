@@ -11,6 +11,15 @@ Item {
     property int        active     : 0
     property variant    model
 
+    onValueChanged: {
+        for (var i = 0; i<model.count;i++) {
+            if (model.get(i).value == value) {
+                active = i
+                break;
+            }
+        }
+    }
+
     ListView {
         id: view
         interactive: false
@@ -40,7 +49,6 @@ Item {
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
                     onClicked: {
-                        container.active = index
                         container.value = value
                         container.clicked()
                     }

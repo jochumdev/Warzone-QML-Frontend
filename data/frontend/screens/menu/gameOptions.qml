@@ -43,50 +43,71 @@ Item {
         anchors.left: labels.right
 
         spacing: 15
-        Widgets.ClickSelect {width: parent.width; options: ["Normal", "Hard", "Easy"]}
-        Widgets.Slider {width: parent.width; value: 0}
+        Widgets.ClickSelect {
+            width: parent.width
+            options: ["Easy", "Normal", "Hard", "Tough", "Killer"]
+            value: config.getValue("difficulty")
+            onValueChanged: config.setValue("difficulty", value)
+        }
+        Widgets.Slider {
+            width: parent.width
+            maximum: 16
+            value: config.getValue("scroll") / 100
+            onValueChanged: config.setValue("scroll", value * 100)
+        }
         Widgets.ImageSelectV2 {
             id: color
             width: parent.width; height: 25
             model: ListModel {
                 ListElement {
-                    value: "green"
+                    value: "0"
                     defaultSource2: "image://imagemap/icon player0"
                     hoverSource2: "image://imagemap/icon player0 hi"
                     activeSource2: "image://imagemap/icon player0 hi"
-                    state2: "active"
                 }
                 ListElement {
-                    value: "orange"
-                    defaultSource2: "image://imagemap/icon player1"
-                    hoverSource2: "image://imagemap/icon player1 hi"
-                    activeSource2: "image://imagemap/icon player1 hi"
-                    state2: ""
-                }
-                ListElement {
-                    value: "grey"
-                    defaultSource2: "image://imagemap/icon player2"
-                    hoverSource2: "image://imagemap/icon player2 hi"
-                    activeSource2: "image://imagemap/icon player2 hi"
-                    state2: ""
-                }
-                ListElement {
-                    value: "black"
-                    defaultSource2: "image://imagemap/icon player3"
-                    hoverSource2: "image://imagemap/icon player3 hi"
-                    activeSource2: "image://imagemap/icon player3 hi"
-                    state2: ""
-                }
-                ListElement {
-                    value: "red"
+                    value: "4"
                     defaultSource2: "image://imagemap/icon player4"
                     hoverSource2: "image://imagemap/icon player4 hi"
                     activeSource2: "image://imagemap/icon player4 hi"
-                    state2: ""
+                }
+                ListElement {
+                    value: "5"
+                    defaultSource2: "image://imagemap/icon player5"
+                    hoverSource2: "image://imagemap/icon player5 hi"
+                    activeSource2: "image://imagemap/icon player5 hi"
+                }
+                ListElement {
+                    value: "6"
+                    defaultSource2: "image://imagemap/icon player6"
+                    hoverSource2: "image://imagemap/icon player6 hi"
+                    activeSource2: "image://imagemap/icon player6 hi"
+                }
+                ListElement {
+                    value: "7"
+                    defaultSource2: "image://imagemap/icon player7"
+                    hoverSource2: "image://imagemap/icon player7 hi"
+                    activeSource2: "image://imagemap/icon player7 hi"
                 }
             }
+
+            value: config.getValue("colour")
+            onValueChanged: config.setValue("colour", value)
         }
-        Widgets.ClickSelect {width: parent.width; options: ["System locale", "German", "English"]}
-        Widgets.ClickSelect {width: parent.width; options: ["Rotating", "Fixed"]}
+        Widgets.ClickSelect {
+            width: parent.width;
+            options: ["System locale", "German", "English"]
+            value: {
+                var index = options.indexOf(config.getValue("language"));
+                (index == -1 ? 0 : index)
+            }
+            onValueChanged: config.setValue("language", options[value])
+        }
+        Widgets.ClickSelect {
+            width: parent.width;
+            options: ["Fixed", "Rotating"]
+            value: config.getValue("rotateRadar") ? 1 : 0;
+            onValueChanged: config.setValue("rotateRadar", (value == 1))
+        }
     }
 }

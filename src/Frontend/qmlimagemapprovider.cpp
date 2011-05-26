@@ -28,8 +28,3 @@ QPixmap QMLImagemapProvider::requestPixmap(const QString &id, QSize *size, const
 
     return image;
 }
-
-void QMLImagemapProvider::setBasePath(const QString &basepath)
-{
-    m_basepath = basepath;
-}

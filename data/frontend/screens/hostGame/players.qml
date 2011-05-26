@@ -463,7 +463,7 @@ Item {
 
     Component.onCompleted: {
         playersModel.clear()
-        playersModel.append({isAI: false, team: 0, playerColor: 0, name: hostGameScreen.playername, isReady: false, isHost: true, isOpen: false,
+        playersModel.append({isAI: false, team: 0, playerColor: 0, name: config.getValue("playerName"), isReady: false, isHost: true, isOpen: false,
                             statsPlayed: 0, statsWins: 0, statsLosses: 0, statsTotalKills: 0, statsTotalScore: 0});
 
         if (hostGameScreen.isSkirmish)

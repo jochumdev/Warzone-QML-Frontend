@@ -3,12 +3,10 @@ import QtQuick 1.0
 Text {
     id: container
 
-    signal clicked
-
     property variant options:   []
-    property variant currentIndex: 0
+    property variant value: 0
 
-    text: container.options[currentIndex]
+    text: options[value]
 
     color: "#a0a0ff"
     font.weight: Font.DemiBold
@@ -25,16 +23,14 @@ Text {
         onExited: { parent.state = "" }
 
         onClicked: {
-            if (container.options.length > container.currentIndex+1)
+            if (options.length > value+1)
             {
-                container.currentIndex += 1
+                value += 1
             }
             else
             {
-                container.currentIndex = 0
+                value = 0
             }
-
-            container.clicked()
         }
     }
 

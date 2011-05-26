@@ -11,7 +11,6 @@ Item {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
 
-    property string     playername  :       "Player"
     property string     map         :       "Rush-T1"
     property int        maxPlayers  :       4
     property int        techlevel   :       1
@@ -126,9 +125,11 @@ Item {
                 passwordInput.state = "off"
                 hostGameButton.opacity = 0
                 hostGameScreen._isHosting = true
-                createMenu("players");
+                createMenu("players")
                 chatBox.clear()
-                chatBox.addSystemMessage("You'r game is not listed. This is a dummy, haha!");
+                if (!hostGameScreen.isSkirmish) {
+                    chatBox.addSystemMessage("You'r game is not listed. This is a dummy, haha!")
+                }
             }
         }
 
@@ -139,14 +140,20 @@ Item {
             y: 2
             Widgets.SingleLineEdit {
                 id: playername
-                text: hostGameScreen.playername
+                text: config.getValue("playerName")
                 maximumLength: 14
 
                 onAccepted: {
-                    if (hostGameScreen.playername != text) {
-                        chatBox.addLine(hostGameScreen.playername + " -> " + text);
-                        hostGameScreen.playername = text
-                        playersModel.setProperty(hostGameScreen.playerIndex, "name", text)
+                    if (config.getValue("playerName") != text) {
+                        if (!hostGameScreen.isSkirmish) {
+                            chatBox.addLine(config.getValue("playerName") + " -> " + text);
+                        }
+
+                        config.setValue("playerName", text)
+
+                        if (playersModel.count) {
+                            playersModel.setProperty(hostGameScreen.playerIndex, "name", text)
+                        }
                     }
                 }
 
@@ -168,7 +175,7 @@ Item {
             Widgets.SingleLineEdit {
                 id: hostnameInput
 
-                text: "One-Player Skirmish"
+                text: (hostGameScreen.isSkirmish ? "One-Player Skirmish" : config.getValue("gameName"))
 
                 state: (hostGameScreen.isSkirmish ? "off" : "")
             }
@@ -255,6 +262,9 @@ Item {
                     image2Source: "image://imagemap/button fog on"
                     image2Hover: "image://imagemap/button fog on hi"
                     image2Active: "image://imagemap/button active"
+
+                    state: config.getValue("fog") ? 2 : 1
+                    onStateChanged: state == 2 ? config.setValue("fog", true) : config.setValue("fog", false)
                 }
             }
             Widgets.SingleLineEdit {
@@ -273,13 +283,15 @@ Item {
                     image3Hover: "image://imagemap/button fixed teams hi"
                     image3Active: "image://imagemap/button active"
 
-                    onClicked: {
+                    state: config.getValue("alliance") + 1
+                    onStateChanged: {
                         if (alliances.state == 3) {
                             hostGameScreen.fixedTeams = true
                         }
                         else {
                             hostGameScreen.fixedTeams = false
                         }
+                        config.setValue("alliance", state - 1)
                     }
                 }
             }
@@ -298,6 +310,9 @@ Item {
                     image3Source: "image://imagemap/button high power"
                     image3Hover: "image://imagemap/button high power hi"
                     image3Active: "image://imagemap/button active"
+
+                    state: config.getValue("power") + 1
+                    onStateChanged: config.setValue("power", state - 1)
                 }
             }
             Widgets.SingleLineEdit {
@@ -315,6 +330,9 @@ Item {
                     image3Source: "image://imagemap/button full bases"
                     image3Hover: "image://imagemap/button full bases hi"
                     image3Active: "image://imagemap/button active"
+
+                    state: config.getValue("base") + 1
+                    onStateChanged: config.setValue("base", state - 1)
                 }
             }
             Widgets.SingleLineEdit {

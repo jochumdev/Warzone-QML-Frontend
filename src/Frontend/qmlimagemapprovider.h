@@ -20,7 +20,6 @@ public:
     QPixmap requestPixmap(const QString &id,
                           QSize *size,
                           const QSize &requestedSize);
-    void setBasePath(const QString &basepath);
 
 private:
     QHash<QString, Imagemap::Map*> m_maps;

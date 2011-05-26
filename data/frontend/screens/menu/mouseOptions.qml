@@ -42,9 +42,29 @@ Item {
         anchors.left: labels.right
 
         spacing: 15
-        Widgets.ClickSelect {width: parent.width; options: ["On", "Off"]}
-        Widgets.ClickSelect {height: 60; width: parent.width; options: ["Off", "On"]}
-        Widgets.ClickSelect {width: parent.width; options: ["Off", "On"]}
-        Widgets.ClickSelect {width: parent.width; options: ["Right Mouse", "Middle Mouse"]}
+        Widgets.ClickSelect {
+            width: parent.width;
+            options: ["Off", "On"]
+            value: config.getValue("mouseflip") ? 1 : 0;
+            onValueChanged: config.setValue("mouseflip", (value == 1))
+        }
+        Widgets.ClickSelect {
+            width: parent.width; height: 60;
+            options: ["Off", "On"]
+            value: config.getValue("trapCursor") ? 1 : 0;
+            onValueChanged: config.setValue("trapCursor", (value == 1))
+        }
+        Widgets.ClickSelect {
+            width: parent.width;
+            options: ["Off", "On"]
+            value: config.getValue("RightClickOrders") ? 1 : 0;
+            onValueChanged: config.setValue("RightClickOrders", (value == 1))
+        }
+        Widgets.ClickSelect {
+            width: parent.width;
+            options: ["Right Mouse", "Middle Mouse"]
+            value: config.getValue("MiddleClickRotate") ? 1 : 0;
+            onValueChanged: config.setValue("MiddleClickRotate", (value == 1))
+        }
     }
 }

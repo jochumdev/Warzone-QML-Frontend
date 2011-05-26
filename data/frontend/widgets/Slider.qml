@@ -5,7 +5,7 @@ import QtQuick 1.0
      // value is read/write.
      property int value
      onValueChanged: { handle.x = 2 + (value - minimum) * slider.xMax / (maximum - minimum); }
-     property real maximum: 1
+     property real maximum: 100
      property real minimum: 1
      property int xMax: slider.width - handle.width-2
      property int xMin: 2
