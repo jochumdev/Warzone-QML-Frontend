@@ -1,7 +1,10 @@
 #include "containerimage.h"
 
+// QT
 #include <QtCore/QFile>
-#include <QtCore/QDebug>
+
+// WzLog
+#include <lib/WzLog/Log.h>
 
 using namespace Imagemap;
 
@@ -15,7 +18,7 @@ ContainerImage::ContainerImage(Map *map, const QString &filename) :
     }
 
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "Loaded container:" << m_filename;
+    wzLog(LOG_IM) << "Loaded container:" << m_filename;
 #endif
 }
 
@@ -28,12 +31,12 @@ QPixmap ContainerImage::pixmap(const Image &image,
     QVector2D factors = calculateFactors_(size, image.size, mode);
 
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "\tContainer:" << m_filename;
-    qDebug() << "\tMode:" << mode;
-    qDebug() << "\tFactors:" << factors;
-    qDebug() << "\tSize:" << qRound(image.size.width() * factors.x()) <<
+    wzLog(LOG_IM) << "\tContainer:" << m_filename;
+    wzLog(LOG_IM) << "\tMode:" << mode;
+    wzLog(LOG_IM) << "\tFactors:" << factors;
+    wzLog(LOG_IM) << "\tSize:" << qRound(image.size.width() * factors.x()) <<
                              qRound(image.size.height() * factors.y());
-    qDebug() << "\tPosition:" << qRound(image.xPosition * factors.x()) <<
+    wzLog(LOG_IM) << "\tPosition:" << qRound(image.xPosition * factors.x()) <<
                                  qRound(image.yPosition * factors.y());
 #endif
 
@@ -52,7 +55,7 @@ QPixmap ContainerImage::pixmap(const Image &image,
 QPixmap ContainerImage::createScaledContainer_(const QVector2D &factors)
 {
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "\tCache is:" << (m_nocache ? "off" : "on");
+    wzLog(LOG_IM) << "\tCache is:" << (m_nocache ? "off" : "on");
 #endif
 
     if (m_nocache)
@@ -71,7 +74,7 @@ QPixmap ContainerImage::createScaledContainer_(const QVector2D &factors)
         QPixmap pix = fullpix.scaled(mySize);
 
 #ifdef IMAGEMAP_DEBUG
-        qDebug() << "\tGenerated:" << m_filename << pix.size();
+        wzLog(LOG_IM) << "\tGenerated:" << m_filename << pix.size();
 #endif
 
         return pix;
@@ -86,7 +89,7 @@ QPixmap ContainerImage::createScaledContainer_(const QVector2D &factors)
         }
 
 #ifdef IMAGEMAP_DEBUG
-        qDebug() << "\tLoaded:" << m_filename << pix.size();
+        wzLog(LOG_IM) << "\tLoaded:" << m_filename << pix.size();
 #endif
 
         m_size = pix.size();
@@ -109,7 +112,7 @@ QPixmap ContainerImage::createScaledContainer_(const QVector2D &factors)
     QPixmap pix = m_cache[m_size].scaled(mySize);
 
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "\tGenerated:" << m_filename << pix.size();
+    wzLog(LOG_IM) << "\tGenerated:" << m_filename << pix.size();
 #endif
 
     m_cache.insert(mySize, pix);

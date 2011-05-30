@@ -14,6 +14,7 @@ Image {
     property string backMenu
     property string loadMenu
 
+    property variant _subComponent
     property variant _subScreen
 
     Component.onCompleted: {
@@ -28,15 +29,27 @@ Image {
         }
 
         try {
-            var myComponent = Qt.createComponent(file);
+            window._subComponent = Qt.createComponent(file);
         }
-        catch(e) { console.log("Failed to load screen: " + name); return; }
+        catch(e) { wz.log("Failed to load screen: " + name); return; }
 
-        if (myComponent == null || myComponent.status == Component.Error) {
-            console.log(myComponent.errorString());
+        if (window._subComponent.status == Component.Loading)
+        {
+            window._subComponent.statusChanged.connect(_createItem);
+        }
+        else
+        {
+            _createItem();
+        }
+    }
+
+    function _createItem()
+    {
+        if (window._subComponent == null || window._subComponent.status == Component.Error) {
+            wz.log(window._subComponent.errorString());
             return;
         }
 
-        window._subScreen = myComponent.createObject(window)
+        window._subScreen = window._subComponent.createObject(window)
     }
 }

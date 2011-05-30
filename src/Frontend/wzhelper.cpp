@@ -7,7 +7,12 @@
 // libc
 #include <libintl.h>
 
+// WzLog
+#include <lib/WzLog/Log.h>
+
 using namespace Frontend;
+
+const int LOG_FRONTEND = WzLog::Logger::instance().addLoggingLevel("frontend", false);
 
 /**
  * Ment to be removed when integrated into warzone.
@@ -19,6 +24,11 @@ WzHelper::WzHelper(const QString &configfile)
     {
         qFatal("Failed to read config file %s", configfile.toUtf8().constData());
     }
+}
+
+Q_INVOKABLE void WzHelper::log(const QString& message)
+{
+    wzLog(LOG_FRONTEND) << message;
 }
 
 Q_INVOKABLE QString WzHelper::tr(const QString& text, const QString &domain)
@@ -56,7 +66,7 @@ Q_INVOKABLE QString WzHelper::tr(const QString& singular, const QString &plural,
  */
 Q_INVOKABLE void WzHelper::setConfigValue(const QString& name, const QVariant& value)
 {
-    qDebug() << "Setting:" << name << "=" << value;
+    wzLog(LOG_FRONTEND) << "Setting:" << name << "=" << value;
 
     // START: Audio Options
     if (name == "voicevol")
@@ -202,7 +212,7 @@ Q_INVOKABLE void WzHelper::setConfigValue(const QString& name, const QVariant& v
 
     else
     {
-        qDebug() << "Unknown config value" << name;
+        wzLog(WzLog::LOG_ERROR) << "Unknown config value" << name;
     }
 }
 
@@ -352,7 +362,7 @@ Q_INVOKABLE const QVariant WzHelper::getConfigValue(const QString& name)
 
     else
     {
-        qDebug() << "Unknown config value" << name;
+        wzLog(WzLog::LOG_ERROR) << "Unknown config value" << name;
         return 0;
     }
 }

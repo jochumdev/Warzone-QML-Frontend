@@ -1,10 +1,14 @@
 #include "containersvg.h"
 
+// QT
 #include <QtCore/QFile>
-#include <QtCore/QDebug>
 
+// SVG
 #include <QtGui/QPainter>
 #include <QtSvg/QSvgRenderer>
+
+// WzLog
+#include <lib/WzLog/Log.h>
 
 using namespace Imagemap;
 
@@ -20,7 +24,7 @@ ContainerSVG::ContainerSVG(Map *map, const QString &filename) :
     m_size = m_renderer->defaultSize();
 
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "Loaded container:" << m_filename;
+    wzLog(LOG_IM) << "Loaded container:" << m_filename;
 #endif
 }
 
@@ -34,9 +38,9 @@ QPixmap ContainerSVG::pixmap(const Image &image,
                          const AspectRatioMode &mode)
 {
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "\tContainer:" << m_filename;
-    qDebug() << "\tMode:" << mode;
-    qDebug() << "\tType:" << image.type;
+    wzLog(LOG_IM) << "\tContainer:" << m_filename;
+    wzLog(LOG_IM) << "\tMode:" << mode;
+    wzLog(LOG_IM) << "\tType:" << image.type;
 #endif
 
     if (image.type == FixedType)
@@ -44,10 +48,10 @@ QPixmap ContainerSVG::pixmap(const Image &image,
         QVector2D factors = calculateFactors_(size, image.size, mode);
 
 #ifdef IMAGEMAP_DEBUG
-        qDebug() << "\tFactors:" << factors;
-        qDebug() << "\tSize:" << qRound(image.size.width() * factors.x()) <<
+        wzLog(LOG_IM) << "\tFactors:" << factors;
+        wzLog(LOG_IM) << "\tSize:" << qRound(image.size.width() * factors.x()) <<
                                 qRound(image.size.height() * factors.y());
-        qDebug() << "\tPosition:" << qRound(image.xPosition * factors.x()) <<
+        wzLog(LOG_IM) << "\tPosition:" << qRound(image.xPosition * factors.x()) <<
                                     qRound(image.yPosition * factors.y());
 #endif
 
@@ -75,13 +79,13 @@ QPixmap ContainerSVG::pixmap(const Image &image,
         QVector2D factors = calculateFactors_(size, bounds.size().toSize(), mode);
 
 #ifdef IMAGEMAP_DEBUG
-        qDebug() << "\tSVG ID:" << image.name;
-        qDebug() << "\tSVG Size:" << bounds.size();
-        qDebug() << "\tFactors:" << factors;
-        qDebug() << "\tSize:" << qRound(image.size.width() * factors.x()) <<
-                                 qRound(image.size.height() * factors.y());
-        qDebug() << "\tPosition:" << qRound(image.xPosition * factors.x()) <<
-                                    qRound(image.yPosition * factors.y());
+        wzLog(LOG_IM) << "\tSVG ID:" << image.name;
+        wzLog(LOG_IM) << "\tSVG Size:" << bounds.size();
+        wzLog(LOG_IM) << "\tFactors:" << factors;
+        wzLog(LOG_IM) << "\tSize:" << qRound(image.size.width() * factors.x()) <<
+                                      qRound(image.size.height() * factors.y());
+        wzLog(LOG_IM) << "\tPosition:" << qRound(image.xPosition * factors.x()) <<
+                                          qRound(image.yPosition * factors.y());
 #endif
 
         QSize mySize(qRound(bounds.width() * factors.x()),
@@ -128,7 +132,7 @@ QPixmap ContainerSVG::createScaledContainer_(const QVector2D &factors)
     }
 
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "\tGenerated:" << m_filename << pix.size();
+    wzLog(LOG_IM) << "\tGenerated:" << m_filename << pix.size();
 #endif
 
     return pix;

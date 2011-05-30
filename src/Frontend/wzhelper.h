@@ -12,6 +12,8 @@ class WzHelper : public QObject
 public:
     WzHelper(const QString &configfile);
 
+    Q_INVOKABLE void log(const QString& message);
+
     Q_INVOKABLE QString tr(const QString&, const QString& domain = QString());
     Q_INVOKABLE QString tr(const QString& singular, const QString& plural, int n, const QString& domain = QString());
 

@@ -1,8 +1,8 @@
 #include "container.h"
 
+// QT
 #include <QtCore/QSize>
 #include <QtCore/QFile>
-#include <QtCore/QDebug>
 #include <QtGui/QPixmap>
 #include <QtGui/QVector2D>
 

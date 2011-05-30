@@ -6,16 +6,22 @@
 #include "containersvg.h"
 
 #include <QtCore/QString>
-#include <QtCore/QDebug>
 #include <QtCore/QVariant>
 #include <QtCore/QFile>
 #include <QtGui/QPixmap>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
+// QJson
 #include <qjson/parser.h>
 
-using namespace Imagemap;
+// WzLog
+#include <lib/WzLog/Log.h>
+
+namespace Imagemap {
+
+// Declared external.
+const int LOG_IM = WzLog::Logger::instance().addLoggingLevel("imagemap", false);
 
 MapPrivate::MapPrivate() :
     m_errorCode(0),
@@ -34,7 +40,7 @@ Map::Map(const QString &filename) :
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly))
     {
-        setError(1, QString("Could not open %1 for reading: %1")
+        setError(1, QString("Could not open %1 for reading: %2")
                        .arg(filename)
                        .arg(file.errorString())
         );
@@ -44,7 +50,7 @@ Map::Map(const QString &filename) :
     QJson::Parser parser;
     bool ok = false;
     QVariantMap result = parser.parse(&file, &ok).toMap();
-    if (ok == false) {
+    if (!ok) {
         setError(1, QString("Failed to load imagemap %1, error %2 on line %3")
                     .arg(filename)
                     .arg(parser.errorString())
@@ -52,7 +58,13 @@ Map::Map(const QString &filename) :
         return;
     }
 
-    QString basepath = QFileInfo(filename).canonicalPath();
+    if (result.isEmpty())
+    {
+        setError(1, QString("Empty Map %1").arg(filename));
+        return;
+    }
+
+    QString basepath = QFileInfo(filename).absolutePath();
 
     QVariantMap imagemaps = result["images"].toMap();
     for (QVariantMap::iterator files = imagemaps.begin();
@@ -67,10 +79,10 @@ Map::Map(const QString &filename) :
         {
             container = ContainerSVG::create(this, filename);
         }
-       else
-       {
+        else
+        {
             container = ContainerImage::create(this, filename);
-       }
+        }
 
         if (errorCode() != 0)
         {
@@ -86,7 +98,7 @@ Map::Map(const QString &filename) :
             QVariantMap value = fileOpts["full"].toMap();
             if (value.isEmpty())
             {
-                qDebug() << "Image" << filename << "is empty!";
+                wzLog(LOG_IM) << "Image" << filename << "is empty!";
             }
             else
             {
@@ -155,8 +167,8 @@ QPixmap Map::pixmap(const QString &name,
                         const AspectRatioMode mode)
 {
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "Fetching:" << name
-             << "mode" << mode;
+    wzLog(LOG_IM) << "Fetching:" << name
+                  << "mode" << mode;
 #endif
 
     if (!d->m_images.contains(name))
@@ -173,9 +185,9 @@ QPixmap Map::pixmap(const QString &name,
                         const AspectRatioMode mode)
 {
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "Fetching:" << name
-             << "factor" << factor
-             << "mode" << mode;
+    wzLog(LOG_IM) << "Fetching:" << name
+                  << "factor" << factor
+                  << "mode" << mode;
 #endif
 
     if (!d->m_images.contains(name))
@@ -192,9 +204,9 @@ QPixmap Map::pixmap(const QString &name,
                         const AspectRatioMode mode)
 {
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "Fetching:" << name
-             << "size" << size
-             << "mode" << mode;
+    wzLog(LOG_IM) << "Fetching:" << name
+                  << "size" << size
+                  << "mode" << mode;
 #endif
 
     if (!d->m_images.contains(name))
@@ -213,8 +225,8 @@ const QStringList Map::imageList()
 void Map::setError(int errorCode, QString errorString, int errorLine)
 {
 #ifdef IMAGEMAP_DEBUG
-    qDebug() << "ERROR" << errorCode
-             << errorString << "at line" << errorLine;
+    wzLog(WzLog::LOG_ERROR) << "Code" << errorCode
+                            << errorString << "at line" << errorLine;
 #endif
 
     d->m_errorCode = errorCode;
@@ -243,3 +255,5 @@ const int Map::errorLine()
 {
   return d->m_errorLine;
 }
+
+} // namespace Imagemap {

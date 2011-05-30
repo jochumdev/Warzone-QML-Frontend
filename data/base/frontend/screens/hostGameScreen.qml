@@ -31,6 +31,7 @@ Item {
     // Internal: Indicates that we are in the player screen.
     property bool       _isHosting  :       false
 
+    property variant    _subComponent
     property variant    _subScreen
 
     function createMenu(file)
@@ -40,17 +41,33 @@ Item {
         }
 
         try {
-            var myComponent = Qt.createComponent(file);
+            hostGameScreen._subComponent = Qt.createComponent(file);
         }
-        catch(e) { console.log("Failed to create hostgame subwidget: " + name); return; }
+        catch(e) { wz.log("Failed to create hostgame subwidget: " + name); return; }
 
-        if (myComponent == null || myComponent.status == Component.Error)
+        if (hostGameScreen._subComponent.status == Component.Loading)
         {
-            console.log(myComponent.errorString());
+            hostGameScreen._subComponent.statusChanged.connect(_createSubMenu);
+        }
+        else
+        {
+            _createSubMenu();
+        }
+    }
+
+    /**
+     * Helper for createMenu, creates the subMenu after the component is loaded.
+     */
+    function _createSubMenu()
+    {
+        if (hostGameScreen._subComponent == null ||
+            hostGameScreen._subComponent.status == Component.Error)
+        {
+            wz.log(hostGameScreen._subComponent.errorString());
             return;
         }
 
-        hostGameScreen._subScreen = myComponent.createObject(rightBox)
+        hostGameScreen._subScreen = hostGameScreen._subComponent.createObject(rightBox)
     }
 
     // Left sideText
@@ -326,6 +343,8 @@ Item {
                             case 1000:
                                 3
                             break;
+                            default:
+                                3
                         }
                     }
                     onStateChanged: {

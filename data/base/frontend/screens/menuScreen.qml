@@ -9,6 +9,7 @@ Item {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
 
+    property variant _subComponent
     property variant _subMenu
 
     Component.onCompleted: createMenu(window.loadMenu)
@@ -26,22 +27,33 @@ Item {
         }
 
         try {
-            var myComponent = Qt.createComponent(file);
+            menuScreen._subComponent = Qt.createComponent(file);
         }
-        catch(e) { console.log("Failed to load menu: " + file); return; }
+        catch(e) { wz.log("Failed to load menu: " + file); return; }
 
-        if (myComponent == null || myComponent.status == Component.Error)
+        if (menuScreen._subComponent.status == Component.Loading)
         {
-            console.log(myComponent.errorString());
+            menuScreen._subComponent.statusChanged.connect(_createSubMenu);
+        }
+        else
+        {
+            _createSubMenu();
+        }
+    }
+
+    /**
+     * Helper for createMenu, creates the subMenu after the component is loaded.
+     */
+    function _createSubMenu()
+    {
+        if (menuScreen._subComponent == null ||
+            menuScreen._subComponent.status == Component.Error)
+        {
+            wz.log(menuScreen._subComponent.errorString());
             return;
         }
 
-        menuScreen._subMenu = myComponent.createObject(menuHolder)
-    }
-
-    function destroyScreen()
-    {
-        menuScreen.destroy();
+        menuScreen._subMenu = menuScreen._subComponent.createObject(menuHolder)
     }
 
     // Top blue box

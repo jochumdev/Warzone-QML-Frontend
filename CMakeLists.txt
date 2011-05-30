@@ -5,12 +5,17 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 project(qmlfrontend)
 
+# Include Submodules
+set (CMAKE_MODULE_PATH
+  ${CMAKE_SOURCE_DIR}/cmake/modules
+)
+
 # compile in debug mode
-IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+if (NOT CMAKE_BUILD_TYPE)
+  set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
       "Choose the type of build, options are: None Debug Debug2 Debug3 Release RelWithDebInfo MinSizeRel."
       FORCE)
-ENDIF()
+endif ()
 
 IF("${CMAKE_BUILD_TYPE}" MATCHES "^Rel.*")
   ADD_DEFINITIONS("-DQT_NO_DEBUG_OUTPUT")
@@ -31,9 +36,7 @@ add_definitions(${QT_DEFINITIONS})
 
 # Ugly OS-X Fix, should find a better way.
 IF(${CMAKE_SYSTEM_NAME} MATCHES "^Darwin")
-	SET(QT_CORE_LIBRARY "-framework QtCore")
-ELSE()
-	SET(QT_CORE_LIBRARY ${QT_QTCORE_LIBRARY})
+	SET(QT_QTCORE_LIBRARY "-framework QtCore")
 ENDIF()
 
 IF("${CMAKE_BUILD_TYPE}" MATCHES "^Rel.*")
@@ -52,7 +55,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IEEE_FP_FLAG} -pipe -fno-strict-aliasi
 add_definitions(-DSTREFLOP_SSE)
 if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-ENDIF ()
+endif ()
 set(CMAKE_CXX_FLAGS_DEBUG "${CXX_FLAGS_DEBUG_ADDITIONAL} -O1 ${DEBUG_WARNINGS} -DDEBUG -D_DEBUG -DNO_CATCH_EXCEPTIONS")
 set(CMAKE_CXX_FLAGS_DEBUG2 "${CXX_FLAGS_DEBUG_ADDITIONAL} -O0 ${DEBUG_WARNINGS} -DDEBUG -D_DEBUG -DNO_CATCH_EXCEPTIONS")
 set(CMAKE_CXX_FLAGS_DEBUG3 "${CXX_FLAGS_DEBUG_ADDITIONAL} -O0 ${DEBUG_WARNINGS} -DDEBUG -D_DEBUG -DNO_CATCH_EXCEPTIONS")
@@ -75,10 +78,13 @@ ENDIF ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
 
-set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+
 set(QMLFRONTEND_INCLUDES ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src ${OPENGL_INCLUDE_DIR} ${QT_INCLUDES})
 
-include(lib/Imagemap/CMakeLists.txt)
+add_subdirectory(lib/WzLog)
+add_subdirectory(lib/Imagemap)
 add_subdirectory(src)
-add_subdirectory(tools/extractmap)
+add_subdirectory(data)
+# add_subdirectory(tools/extractmap)

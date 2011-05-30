@@ -10,6 +10,8 @@ class QStringList;
 
 namespace Imagemap {
 
+    extern const int LOG_IM;
+
     enum AspectRatioMode {
         IgnoreAspectRatio,
         KeepAspectRatio,
