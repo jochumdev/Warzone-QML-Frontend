@@ -15,7 +15,7 @@ namespace Imagemap {
     class Container
     {
     public:
-        ~Container();
+        virtual ~Container();
 
         QPixmap pixmap(const Image &image,
                        const int factor,
