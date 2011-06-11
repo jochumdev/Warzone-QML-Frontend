@@ -52,7 +52,7 @@ const int PRIORITY_DATA = 300;
 
 const int LOG_FS = WzLog::Logger::instance().addLoggingLevel("fs", false);
 
-// Static Functions definitions.
+// Static Functions declarations.
 static void getPlatformUserDir(QString& result, const char* appSubDir);
 static void addLoadedMod(QString modname);
 static void printSearchPath();

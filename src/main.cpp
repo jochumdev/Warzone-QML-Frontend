@@ -20,7 +20,7 @@
 #include "Frontend/wzhelper.h"
 #include "Frontend/qmlimagemapprovider.h"
 
-// See QtString docs for them.
+// See QString docs for them.
 #define QT_USE_FAST_CONCATENATION
 #define QT_USE_FAST_OPERATOR_PLUS
 

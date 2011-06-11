@@ -34,13 +34,13 @@ namespace WzLog {
 
 // This MUST be in the same order as in the LoggerImpl initalizer!
 enum LEVELS {
-    LOG_ALL = 0,        // Will automaticaly enable levels higher than this, but not custom levels.
-    LOG_TRACE,          // -""-
+    LOG_ALL = 0,        // Will automaticaly enable levels higher than this.
+    LOG_TRACE,          // -""-, but not custom levels.
     LOG_DEBUG,          // -""-
-    LOG_INFO,           // Enabled by default.
-    LOG_WARN,           // Enabled by default.
-    LOG_ERROR,          // Enabled by default.
-    LOG_FATAL,          // Enabled by default.
+    LOG_INFO,           // -""-, enabled by default.
+    LOG_WARN,           // -""-, enabled by default.
+    LOG_ERROR,          // -""-, enabled by default.
+    LOG_FATAL,          // -""-, enabled by default.
     LOG_NEVER,          // Special: Needs to be last for setLevelStatus.
     LOG_POPUP           // Special: Shows a popup window
 };
