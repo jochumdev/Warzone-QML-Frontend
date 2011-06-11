@@ -66,7 +66,7 @@ Q_INVOKABLE QString WzHelper::tr(const QString& singular, const QString &plural,
  */
 Q_INVOKABLE void WzHelper::setConfigValue(const QString& name, const QVariant& value)
 {
-    wzLog(LOG_FRONTEND) << "Setting:" << name << "=" << value;
+    wzLog(LOG_FRONTEND) << "Setting:" << name << "=" << value.toString();
 
     // START: Audio Options
     if (name == "voicevol")
