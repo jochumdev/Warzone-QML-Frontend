@@ -71,6 +71,9 @@ public:
     //! Returns if the given level is enabled
     bool checkLevel(int level);
 
+    //! Enable/disable the input buffer
+    void setInputBuffer(bool state);
+
     //! The helper forwards the streaming to QDebug and builds the final
     //! log message.
     class Helper
@@ -88,7 +91,7 @@ public:
         void writeToLog();
 
         int level;
-        const char* function;
+        QString function;
         int line;
         QString buffer;
         QDebug qtDebug;
@@ -100,7 +103,7 @@ private:
    Logger& operator=(const Logger&);
    ~Logger();
 
-   void write(const QString& message);
+   void write(const QString &level, const QString &function, const QString &message);
 
    LoggerImpl* d;
 }; // class Logger

@@ -52,7 +52,8 @@ static const QString fmtDateTime("hh:mm:ss");
 class LoggerImpl
 {
 public:
-    LoggerImpl()
+    LoggerImpl() :
+        useInputBuffer(true)
     {
         // This MUST be in the same order as the Levels Enum!
         levelNames.append("ALL");
@@ -104,6 +105,13 @@ public:
     QStringList        levelNames;
     QList<bool>        levelStatus;
     DestinationList    destList;
+
+    // Input buffer
+    bool                useInputBuffer;
+    qint32              repeated;
+    qint32              next;
+    qint32              prev;
+    QString             lastMessage;
 };
 
 Logger::Logger() :
@@ -180,6 +188,16 @@ bool Logger::checkLevel(int level)
     return d->levelStatus[level];
 }
 
+void Logger::setInputBuffer(bool state)
+{
+    d->useInputBuffer = state;
+    if (!state)
+    {
+        d->next = d->repeated = d->prev = 0;
+        d->lastMessage.clear();
+    }
+}
+
 void Logger::Helper::sprintf(const char* cformat, ...)
 {
     va_list ap;
@@ -200,13 +218,6 @@ void Logger::Helper::writeToLog()
         buffer.remove(0, 1).chop(2);
     }
 
-    const QString completeMessage(QString("%1 |%2: %3 %4")
-        .arg(logger.d->levelNames.at(level), -8)
-        .arg(QDateTime::currentDateTime().toString(fmtDateTime))
-        .arg(QString("[%1]").arg(function), -20)
-        .arg(buffer)
-    );
-
     if (level == LOG_POPUP)
     {
         QMessageBox msgBox(
@@ -216,9 +227,10 @@ void Logger::Helper::writeToLog()
         );
         msgBox.exec();
     }
-
-    QMutexLocker lock(&logger.d->logMutex);
-    logger.write(completeMessage);
+    else
+    {
+        logger.write(logger.d->levelNames.at(level), function, buffer);
+    }
 }
 
 Logger::Helper::~Helper()
@@ -237,17 +249,95 @@ Logger::Helper::~Helper()
 }
 
 //! sends the message to all the destinations
-void Logger::write(const QString& message)
+void Logger::write(const QString& level, const QString& function, const QString& message)
 {
-    foreach(Destination* d, d->destList)
-    {
-        if (!d)
-        {
-            assert(!"null log destination");
-            continue;
-        }
+    QString output;
 
-        d->write(message);
+    // Inputbuffer algo by warzone 2100: lib/framework/debug.cpp
+    if (d->useInputBuffer && message == d->lastMessage)
+    {
+        // Received again the same line
+        d->repeated++;
+        if (d->repeated == d->next)
+        {
+            if (d->repeated > 2)
+            {
+                output = QString("last message repeated %1 times (total %2 repeats)")
+                                .arg(d->repeated - d->prev).arg(d->repeated);
+            }
+            else
+            {
+                output = QString("last message repeated %1 times")
+                                .arg(d->repeated - d->prev);
+            }
+            d->prev = d->repeated;
+            d->next *= 2;
+        }
+    }
+    else
+    {
+        // Received another line, cleanup the old
+        if (d->repeated > 0 && d->repeated != d->prev && d->repeated != 1)
+        {
+            /* just repeat the previous message when only one repeat occurred */
+            if (d->repeated > 2)
+            {
+                output = QString("last message repeated %1 times (total %2 repeats)")
+                                .arg(d->repeated - d->prev).arg(d->repeated);
+            }
+            else
+            {
+                output = QString("last message repeated %1 times")
+                                .arg(d->repeated - d->prev);
+            }
+        }
+        d->repeated = 0;
+        d->next = 2;
+        d->prev = 0;
+    }
+
+    if (!output.isEmpty())
+    {
+        output = QString("%1 |%2: %3 %4")
+            .arg(level, -8)
+            .arg(QDateTime::currentDateTime().toString(fmtDateTime))
+            .arg(QString("[%1]").arg(function), -20)
+            .arg(output);
+
+        QMutexLocker lock(&d->logMutex);
+        foreach(Destination* dest, d->destList)
+        {
+            if (!dest)
+            {
+                assert(!"null log destination");
+                continue;
+            }
+
+            dest->write(output);
+        }
+    }
+
+    if (!d->repeated)
+    {
+        d->lastMessage = message;
+
+        output = QString("%1 |%2: %3 %4")
+            .arg(level, -8)
+            .arg(QDateTime::currentDateTime().toString(fmtDateTime))
+            .arg(QString("[%1]").arg(function), -20)
+            .arg(message);
+
+        QMutexLocker lock(&d->logMutex);
+        foreach(Destination* dest, d->destList)
+        {
+            if (!dest)
+            {
+                assert(!"null log destination");
+                continue;
+            }
+
+            dest->write(output);
+        }
     }
 }
 
