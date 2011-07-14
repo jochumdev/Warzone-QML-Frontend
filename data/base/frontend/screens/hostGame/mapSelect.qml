@@ -1,6 +1,5 @@
 import QtQuick 1.0
 import "../../widgets" as Widgets
-import "../../functions.js" as Support
 
 Item {
     id: container
@@ -49,11 +48,13 @@ Item {
     function updateMapList()
     {
         mapModel.clear();
-        for (var mapname in Support.maps)
+
+        var maps = wz.getMapList(hostGameScreen.techlevel);
+
+        for (var mapname in maps)
         {
-            var mapdata = Support.maps[mapname];
-            if ((hostGameScreen.maxPlayers == 0 || mapdata["players"] == hostGameScreen.maxPlayers)
-                 && mapdata["techlevels"].indexOf(hostGameScreen.techlevel) != -1)
+            var mapdata = maps[mapname];
+            if (hostGameScreen.maxPlayers == 0 || mapdata["players"] == hostGameScreen.maxPlayers)
             {
                 mapModel.append({"name": mapname, "players2": mapdata["players"]});
             }

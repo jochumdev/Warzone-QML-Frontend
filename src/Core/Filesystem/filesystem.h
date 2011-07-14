@@ -3,7 +3,8 @@
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QVariantMap>
+
+#include <Core/Filesystem/physfs_ext.h>
 
 namespace FileSystem {
 
@@ -35,30 +36,17 @@ void scanDataDirs(const QString cmdDataDir = QString(), const QString fallbackDi
  * @param mode      The Mode to rebuild to either mod_campaign or mod_multiplay.
  * @param force     Ignoring the internal state, force a rebuild.
  */
-bool rebuildSearchPath( searchPathMode mode, bool force);
+bool rebuildSearchPath( searchPathMode mode, bool force = false);
 
 /**
- * @brief Returns a QVariantMap of Maps.
- *
- * @param forceRebuild  Rebuild the internal cache.
+ * @brief Loads all maps into the searchpath and sets the search mode to mod_multiplay.
  */
-//QVariantMap& getMPMaps(bool rebuild = false);
+void loadMaps();
 
 /**
- * @brief Add the map to the search path.
- *
- * This transforms "Sk-Rush-T1" into "4c-Rush.wz"
- *
- * @param  map  Map to add will be modified!
- *
- * @return Success|Failure
+ * @brief Unloads all maps from the searchpath and resets the search mode.
  */
-//bool addMapToSearchPath(QString& map);
-
-/**
- * @brief Remove the previously added map from the searchpath.
- */
-//void removeMapFromSearchPath();
+void unloadMaps();
 
 void clearOverrides();
 

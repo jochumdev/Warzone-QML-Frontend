@@ -10,6 +10,9 @@
 // WzLog
 #include <lib/WzLog/Log.h>
 
+// Map list
+#include <Core/Map/map.h>
+
 using namespace Frontend;
 
 const int LOG_FRONTEND = WzLog::Logger::instance().addLoggingLevel("frontend", false);
@@ -59,6 +62,24 @@ Q_INVOKABLE QString WzHelper::tr(const QString& singular, const QString &plural,
                                            singular.toUtf8().constData(),
                                            plural.toUtf8().constData(), n));
     }
+}
+
+Q_INVOKABLE QVariantMap WzHelper::getMapList(int techLevel)
+{
+    switch (techLevel)
+    {
+        case 1:
+            return Map::getList(Map::GAMETYPE_SKIRMISH_T1);
+        break;
+        case 2:
+            return Map::getList(Map::GAMETYPE_SKIRMISH_T2);
+        break;
+        case 3:
+            return Map::getList(Map::GAMETYPE_SKIRMISH_T3);
+        break;
+    }
+
+    return Map::getList(Map::GAMETYPE_SKIRMISH_T1);
 }
 
 /**

@@ -1,5 +1,4 @@
 #include <Core/Filesystem/filesystem.h>
-#include <Core/Filesystem/physfs_ext.h>
 
 // "wz::" handler
 #include <Core/Filesystem/qphysfsenginehandler.h>
@@ -36,7 +35,9 @@ static QStringList override_map;
 static QString     mod_list;
 static QStringList loaded_mods;
 
-static QVariantMap mapList;
+static searchPathMode currentSearchMode = mod_clean;
+// To remember the last used searchpath when detecting maps/mods.
+static searchPathMode lastSearchMode = mod_clean;
 
 // Registers the "wz::" Filesystem handler.
 // FIXME: This is ugly as global
@@ -358,10 +359,9 @@ static void removeSubdirs(const QString& basedir, const char* subdir)
 
 bool rebuildSearchPath( searchPathMode mode, bool force)
 {
-    static searchPathMode current_mode = mod_clean;
     QString tmpstr;
 
-    if (mode != current_mode || force ||
+    if (mode != currentSearchMode || force ||
             (use_override_mods && override_mods != loaded_mods) || use_override_map)
     {
         if (mode != mod_clean)
@@ -369,7 +369,7 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
             rebuildSearchPath(mod_clean, false);
         }
 
-        current_mode = mode;
+        currentSearchMode = mode;
 
         // Clear mods as we detect them now (again).
         mod_list.clear();
@@ -481,7 +481,6 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
 
                 // Add maps and global and multiplay mods
                 PHYSFS_addToSearchPath(path.toUtf8().constData(), PHYSFS_APPEND);
-                addSubdirs(path, "maps", PHYSFS_APPEND, use_override_map?override_map:QStringList(), false);
                 addSubdirs(path, "mods/music", PHYSFS_APPEND, QStringList(), false);
                 addSubdirs(path, "mods/global", PHYSFS_APPEND, use_override_mods?override_mods:global_mods, true);
                 addSubdirs(path, "mods", PHYSFS_APPEND, use_override_mods?override_mods:global_mods, true);
@@ -528,7 +527,7 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
                 wzLog(WzLog::LOG_POPUP) << QString().sprintf("The required mod could not be loaded: %s\n\nWarzone will try to load the game without it.", override_mods.join(", ").toUtf8().constData());
             }
             clearOverrides();
-            current_mode = mod_override;
+            currentSearchMode = mod_override;
         }
 
         // User's home dir must be first so we allways see what we write
@@ -606,49 +605,40 @@ QString& getModList()
     return mod_list;
 }
 
-// QVariantMap& getMPMaps(bool rebuild = false)
-// {
-//     if (!mapList.isEmpty() && !rebuild)
-//     {
-//         return mapList;
-//     }
-//
-//     mapList.clear();
-//     rebuildSearchPath(mod_clean);
-//
-//     foreach(QString path, searchPathRegistry)
-//     {
-//         PHYSFS_mount(path.toUtf8().constData(), NULL, PHYSFS_APPEND);
-//         addSubdirs(path, "maps", PHYSFS_APPEND, QStringList(), false);
-//         if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
-//         {
-//             wzLog(LOG_FS) << QString("* Failed to remove path %1 again").arg(path);
-//         }
-//     }
-// }
-//
-// bool addMapToSearchPath(QString& map)
-// {
-//     Transform "Sk-Rush-T2" into "4c-Rush.wz" so it can be matched by the map loader
-//     if (map.startsWith("Sk-"))
-//     {
-//         map.remove(0, 3);
-//     }
-//
-//     Remove -T1|-T2|-T3
-//     if (map.right(3).left(2) == "-T")
-//     {
-//         map.chop(3);
-//     }
-//
-//     map.prepend("%1c-").arg(maxPlayers);
-//     map.append(".wz");
-// }
-//
-// void removeMapFromSearchPath()
-// {
-//
-// }
+void loadMaps()
+{
+    // Remember the last search mode.
+    lastSearchMode = currentSearchMode;
 
+    rebuildSearchPath(mod_multiplay);
+
+    // Adds all map subdiretories to the the physfs search path.
+    foreach(QString path, searchPathRegistry)
+    {
+        PHYSFS_mount(path.toUtf8().constData(), NULL, PHYSFS_APPEND);
+        addSubdirs(path, "maps", PHYSFS_APPEND, QStringList(), false);
+        if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
+        {
+            wzLog(LOG_FS) << QString("* Failed to remove path %1 again").arg(path);
+        }
+    }
+}
+
+void unloadMaps()
+{
+    // Remove all map subdiretories from the the physfs search path.
+    foreach(QString path, searchPathRegistry)
+    {
+        PHYSFS_mount(path.toUtf8().constData(), NULL, PHYSFS_APPEND);
+        removeSubdirs(path, "maps");
+        if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
+        {
+            wzLog(LOG_FS) << QString("* Failed to remove path %1 again").arg(path);
+        }
+    }
+
+    rebuildSearchPath(lastSearchMode);
+    printSearchPath();
+}
 
 } // namespace FileSystem {

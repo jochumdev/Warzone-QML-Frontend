@@ -188,7 +188,7 @@ public:
         return PHYSFS_fileLength(fp);
     }
 
-    virtual void setFileName(const QString& file)
+    void setFileName(const QString& file)
     {
         realSetFileName(file);
     }

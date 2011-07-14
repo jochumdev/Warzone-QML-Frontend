@@ -15,10 +15,12 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
 
-#include "Core/Filesystem/filesystem.h"
+#include <Core/Filesystem/filesystem.h>
 
-#include "Frontend/wzhelper.h"
-#include "Frontend/qmlimagemapprovider.h"
+#include <Frontend/wzhelper.h>
+#include <Frontend/qmlimagemapprovider.h>
+
+#include <Core/Map/map.h>
 
 // See QString docs for them.
 #define QT_USE_FAST_CONCATENATION
@@ -36,6 +38,7 @@ int main(int argc, char *argv[])
     WzLog::Logger::instance().setLevelStatus("fs", true);
     WzLog::Logger::instance().setLevelStatus("imagemap", true);
     WzLog::Logger::instance().setLevelStatus("frontend", true);
+    WzLog::Logger::instance().setLevelStatus("map", true);
 
     FileSystem::init(argv[0], ".warzone2100-master");
     FileSystem::scanDataDirs();
