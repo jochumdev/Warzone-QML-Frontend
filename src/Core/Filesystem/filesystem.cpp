@@ -12,6 +12,7 @@
 #include <lib/WzLog/Log.h>
 
 // For getPlatformUserDir
+// TODO: Needs testing.
 #if defined(QT_OS_WIN)
     #include <shlobj.h> /* For SHGetFolderPath */
 #elif defined(QT_OS_MAC)
@@ -28,9 +29,6 @@ static QStringList multiplay_mods;
 
 static bool use_override_mods = false;
 static QStringList override_mods;
-
-static bool use_override_map = false;
-static QStringList override_map;
 
 static QString     mod_list;
 static QStringList loaded_mods;
@@ -199,7 +197,6 @@ void scanDataDirs(const QString cmdDataDir, const QString fallbackDir)
 #endif
 
     /** Debugging and sanity checks **/
-
     printSearchPath();
 
     if (PHYSFS_exists("gamedesc.lev"))
@@ -273,9 +270,6 @@ void clearOverrides()
 {
     use_override_mods = false;
     override_mods.clear();
-
-    use_override_map = false;
-    override_map.clear();
 }
 
 static void printSearchPath()
@@ -303,10 +297,11 @@ static void printSearchPath()
 static void addSubdirs(const QString& basedir, const char* subdir, const bool appendToPath, const QStringList& checkList, bool addToModList)
 {
     //char buf[256];
-    char** subdirlist = PHYSFS_enumerateFiles(subdir);
-    char** i = subdirlist;
+    char **subdirlist, **i;
 
-    while (*i != NULL)
+    subdirlist = PHYSFS_enumerateFiles(subdir);
+
+    for (i = subdirlist; *i != NULL; ++i)
     {
 #ifdef DEBUG
         wzLog(WzLog::LOG_NEVER) << QString("Examining subdir: [%1]").arg(*i);
@@ -327,7 +322,6 @@ static void addSubdirs(const QString& basedir, const char* subdir, const bool ap
 
             PHYSFS_addToSearchPath(tmpstr.toUtf8().constData(), appendToPath);
         }
-        i++;
     }
     PHYSFS_freeList(subdirlist);
 }
@@ -362,7 +356,7 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
     QString tmpstr;
 
     if (mode != currentSearchMode || force ||
-            (use_override_mods && override_mods != loaded_mods) || use_override_map)
+            (use_override_mods && override_mods != loaded_mods))
     {
         if (mode != mod_clean)
         {
@@ -520,7 +514,7 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
             return false;
         }
 
-        if ((use_override_mods || use_override_map) && mode != mod_clean)
+        if ((use_override_mods) && mode != mod_clean)
         {
             if (use_override_mods && override_mods != loaded_mods)
             {
@@ -624,6 +618,11 @@ void loadMaps()
     }
 }
 
+void loadMap(const char *path)
+{
+    PHYSFS_addToSearchPath(path, PHYSFS_APPEND);
+}
+
 void unloadMaps()
 {
     // Remove all map subdiretories from the the physfs search path.
@@ -638,7 +637,6 @@ void unloadMaps()
     }
 
     rebuildSearchPath(lastSearchMode);
-    printSearchPath();
 }
 
 } // namespace FileSystem {

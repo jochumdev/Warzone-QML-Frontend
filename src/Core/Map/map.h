@@ -32,4 +32,9 @@ extern const int LOG_MAP;
  */
 QVariantMap& getList(GAMETYPES gameType = GAMETYPE_SKIRMISH_T1);
 
+/**
+ * @brief Adds a map to the searchpath, unloads any previously loaded maps.
+ */
+void loadMap(const QString &path);
+
 } // namespace Map {

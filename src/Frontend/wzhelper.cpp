@@ -82,6 +82,11 @@ Q_INVOKABLE QVariantMap WzHelper::getMapList(int techLevel)
     return Map::getList(Map::GAMETYPE_SKIRMISH_T1);
 }
 
+Q_INVOKABLE void WzHelper::loadMap(const QString &path)
+{
+    Map::loadMap(path);
+}
+
 /**
  * This would normaly call one of the thousands setters Warzone has.
  */

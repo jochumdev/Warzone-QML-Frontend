@@ -19,6 +19,9 @@ static QVariantMap mlSkirmishT1;
 static QVariantMap mlSkirmishT2;
 static QVariantMap mlSkirmishT3;
 
+// Do we already have a map loaded?
+static bool mapLoaded = false;
+
 /**
  * @brief Removes the prepending "Sk-" and leading "-TX" from a mapname.
  *
@@ -156,6 +159,23 @@ QVariantMap& getList(GAMETYPES gameType)
     }
 
     return mlSkirmishT1;
+}
+
+void loadMap(const QString& path)
+{
+    if (path.isEmpty())
+    {
+        return;
+    }
+
+    if (mapLoaded)
+    {
+        FileSystem::unloadMaps();
+    }
+
+    FileSystem::loadMap(path.toUtf8().constData());
+
+    mapLoaded = true;
 }
 
 } // namespace Map {

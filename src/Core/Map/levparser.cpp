@@ -2,7 +2,6 @@
 #include <QtCore/QHash>
 #include <QtCore/QRegExp>
 #include <QtCore/QFile>
-#include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 
 // Self
@@ -101,7 +100,7 @@ static qint64 parseLevel(QIODevice* io, MapData& level, qint64 line)
         }
 
         int tokenId = levelTypeTokens.value(data.at(1));
-        switch((LevelType)tokenId)
+        switch(static_cast<LevelType>(tokenId))
         {
             case LEVEL_PLAYERS:
                 level.players = data.at(2).toInt();
@@ -182,7 +181,7 @@ bool LevParser::parse(QString &filename, const char* path)
 
         QStringList dataset;
         MapData level;
-        switch((LevelIdentType)tokenId)
+        switch(static_cast<LevelIdentType>(tokenId))
         {
             case IDENT_TYPE_DATASET:
                 line = parseDataset(&file, dataset, line);

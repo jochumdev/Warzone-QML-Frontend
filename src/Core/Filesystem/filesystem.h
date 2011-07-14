@@ -44,6 +44,13 @@ bool rebuildSearchPath( searchPathMode mode, bool force = false);
 void loadMaps();
 
 /**
+ * @brief Appends the given map path to the search path, remove it with unloadMaps().
+ *
+ * This is currently not very usefull, but might come in handy later.
+ */
+void loadMap(const char *path);
+
+/**
  * @brief Unloads all maps from the searchpath and resets the search mode.
  */
 void unloadMaps();
