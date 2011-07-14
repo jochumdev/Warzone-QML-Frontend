@@ -19,6 +19,8 @@
     #include <CoreServices/CoreServices.h>
 #endif // WZ_OS_WIN
 
+const int LOG_FS = WzLog::Logger::instance().addLoggingLevel("fs", false);
+
 namespace FileSystem {
 
 static QMap<unsigned int, QString> searchPathRegistry;
@@ -49,8 +51,6 @@ const int PRIORITY_MAP = 200;
 // Game data starts a this priority.
 const int PRIORITY_DATA = 300;
 
-const int LOG_FS = WzLog::Logger::instance().addLoggingLevel("fs", false);
-
 // Static Functions declarations.
 static void getPlatformUserDir(QString& result, const char* appSubDir);
 static void addLoadedMod(QString modname);
@@ -77,7 +77,7 @@ void init(const char* binpath, const char* appSubDir, const QString& cmdUserdir)
          .arg(linked.major).arg(linked.minor).arg(linked.patch);
     if (linked.major < 2)
     {
-        wzLog(WzLog::LOG_FATAL) << "At least version 2 of PhysicsFS required!";
+        wzLog(LOG_FATAL) << "At least version 2 of PhysicsFS required!";
         exit(-1);
     }
 
@@ -88,7 +88,7 @@ void init(const char* binpath, const char* appSubDir, const QString& cmdUserdir)
         getPlatformUserDir(tmpdir, appSubDir);
         if (!QFile::exists(tmpdir) && !QDir().mkdir(tmpdir))
         {
-            wzLog(WzLog::LOG_FATAL) << QString("Error creating user directory \"%1\"").arg(tmpdir);
+            wzLog(LOG_FATAL) << QString("Error creating user directory \"%1\"").arg(tmpdir);
             exit(1);
         }
     }
@@ -104,13 +104,13 @@ void init(const char* binpath, const char* appSubDir, const QString& cmdUserdir)
 
         if (!QFile::exists(tmpdir) && !QDir().mkdir(tmpdir))
         {
-            wzLog(WzLog::LOG_FATAL) << QString("Error creating custom user directory \"%1\"").arg(tmpdir);
+            wzLog(LOG_FATAL) << QString("Error creating custom user directory \"%1\"").arg(tmpdir);
         }
     }
 
     if (!PHYSFS_setWriteDir(tmpdir.toUtf8().constData()))
     {
-        wzLog(WzLog::LOG_FATAL) << QString("Error setting write directory to \"%1\": %2")
+        wzLog(LOG_FATAL) << QString("Error setting write directory to \"%1\": %2")
             .arg(tmpdir).arg(PHYSFS_getLastError());
         exit(1);
     }
@@ -186,7 +186,7 @@ void scanDataDirs(const QString cmdDataDir, const QString fallbackDir)
         }
         else
         {
-            wzLog(WzLog::LOG_ERROR) << "Could not change to resources directory.";
+            wzLog(LOG_ERROR) << "Could not change to resources directory.";
         }
 
         if (resourceURL != NULL)
@@ -205,7 +205,7 @@ void scanDataDirs(const QString cmdDataDir, const QString fallbackDir)
     }
     else
     {
-        wzLog(WzLog::LOG_FATAL) << "Could not find game data. Aborting.";
+        wzLog(LOG_FATAL) << "Could not find game data. Aborting.";
         exit(1);
     }
 }
@@ -304,13 +304,13 @@ static void addSubdirs(const QString& basedir, const char* subdir, const bool ap
     for (i = subdirlist; *i != NULL; ++i)
     {
 #ifdef DEBUG
-        wzLog(WzLog::LOG_NEVER) << QString("Examining subdir: [%1]").arg(*i);
+        wzLog(LOG_NEVER) << QString("Examining subdir: [%1]").arg(*i);
 #endif // DEBUG
         if (*i[0] != '.' && (checkList.isEmpty() || checkList.contains(*i)))
         {
             QString tmpstr = QString("%1%2%3%4").arg(basedir).arg(subdir).arg(PHYSFS_getDirSeparator()).arg(*i);
 #ifdef DEBUG
-            wzLog(WzLog::LOG_NEVER) << QString("Adding [%1] to search path").arg(tmpstr);
+            wzLog(LOG_NEVER) << QString("Adding [%1] to search path").arg(tmpstr);
 #endif // DEBUG
 
             if (addToModList)
@@ -336,13 +336,13 @@ static void removeSubdirs(const QString& basedir, const char* subdir)
         QString tmpstr = QString("%1%2%3%4").arg(basedir).arg(subdir).arg(PHYSFS_getDirSeparator()).arg(*i);
 
         #ifdef DEBUG
-            wzLog(WzLog::LOG_NEVER) << QString("Removing [%1] from search path").arg(tmpstr);
+            wzLog(LOG_NEVER) << QString("Removing [%1] from search path").arg(tmpstr);
         #endif
 
         if (!PHYSFS_removeFromSearchPath(tmpstr.toUtf8().constData()))
         {
             #ifdef DEBUG    // spams a ton!
-                wzLog(WzLog::LOG_NEVER) << QString("Couldn't remove %1 from search path because %2").arg(tmpstr).arg(PHYSFS_getLastError());
+                wzLog(LOG_NEVER) << QString("Couldn't remove %1 from search path because %2").arg(tmpstr).arg(PHYSFS_getLastError());
             #endif
         }
 
@@ -510,7 +510,7 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
             }
             break;
         default:
-            wzLog(WzLog::LOG_ERROR) << QString("Can't switch to unknown mods %1").arg(mode);
+            wzLog(LOG_ERROR) << QString("Can't switch to unknown mods %1").arg(mode);
             return false;
         }
 
@@ -518,7 +518,7 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
         {
             if (use_override_mods && override_mods != loaded_mods)
             {
-                wzLog(WzLog::LOG_POPUP) << QString().sprintf("The required mod could not be loaded: %s\n\nWarzone will try to load the game without it.", override_mods.join(", ").toUtf8().constData());
+                wzLog(LOG_POPUP) << QString().sprintf("The required mod could not be loaded: %s\n\nWarzone will try to load the game without it.", override_mods.join(", ").toUtf8().constData());
             }
             clearOverrides();
             currentSearchMode = mod_override;

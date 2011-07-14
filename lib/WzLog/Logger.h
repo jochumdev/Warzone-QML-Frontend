@@ -30,8 +30,6 @@
 #include <QtCore/QString>
 #include <QtCore/QtDebug>
 
-namespace WzLog {
-
 // This MUST be in the same order as in the LoggerImpl initalizer!
 enum LEVELS {
     LOG_ALL = 0,        // Will automaticaly enable levels higher than this.
@@ -44,6 +42,8 @@ enum LEVELS {
     LOG_NEVER,          // Special: Needs to be last for setLevelStatus.
     LOG_POPUP           // Special: Shows a popup window
 };
+
+namespace WzLog {
 
 class Destination;
 

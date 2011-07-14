@@ -78,7 +78,7 @@ static qint64 parseDataset(QIODevice* io, QStringList& dataset, qint64 line)
         }
         else
         {
-            wzLog(WzLog::LOG_ERROR) << QString("Line %1, unknown dataset token: %2")
+            wzLog(LOG_ERROR) << QString("Line %1, unknown dataset token: %2")
                                             .arg(line).arg(data.at(1));
             return -1;
         }
@@ -118,7 +118,7 @@ static qint64 parseLevel(QIODevice* io, MapData& level, qint64 line)
                 level.dataFiles.append(data.at(2));
             break;
             default:
-                wzLog(WzLog::LOG_ERROR) << QString("Line %1, unknown level token: %2")
+                wzLog(LOG_ERROR) << QString("Line %1, unknown level token: %2")
                                                     .arg(line).arg(data.at(1));
         }
     }
@@ -155,7 +155,7 @@ bool LevParser::parse(QString &filename, const char* path)
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
         // Failed to open file
-        wzLog(WzLog::LOG_ERROR) << QString("Failed to open %1")
+        wzLog(LOG_ERROR) << QString("Failed to open %1")
                                         .arg(filename);
         return false;
     }

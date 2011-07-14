@@ -8,9 +8,9 @@
 // Filesystem
 #include <Core/Filesystem/filesystem.h>
 
-namespace Map {
-
 const int LOG_MAP = WzLog::Logger::instance().addLoggingLevel("map", false);
+
+namespace Map {
 
 static QVariantMap mlCampaignT1;
 static QVariantMap mlCampaignT2;
@@ -120,7 +120,7 @@ static void buildMapList()
                 mlSkirmishT1.insert(shortenMapname(i.key()), data);
             break;
             default:
-                wzLog(WzLog::LOG_INFO) << QString("Unknown gameType %1 in %2, map %3")
+                wzLog(LOG_INFO) << QString("Unknown gameType %1 in %2, map %3")
                                             .arg(map.type).arg(map.file).arg(i.key());
         }
     }
@@ -154,7 +154,7 @@ QVariantMap& getList(GAMETYPES gameType)
             return mlSkirmishT1;
         break;
         default:
-            wzLog(WzLog::LOG_ERROR) << QString("Unknown gameType %1").arg(gameType);
+            wzLog(LOG_ERROR) << QString("Unknown gameType %1").arg(gameType);
             return mlSkirmishT1;
     }
 

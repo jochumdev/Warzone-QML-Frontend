@@ -1,5 +1,5 @@
-#ifndef CORE_MAP_LEVEL_H
-#define CORE_MAP_LEVEL_H
+#ifndef CORE_MAP_LEVPARSER_H
+#define CORE_MAP_LEVPARSER_H
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -47,4 +47,4 @@ public:
 
 } // namespace Parser {
 
-#endif // CORE_MAP_LEVEL_H
+#endif // CORE_MAP_LEVPARSER_H

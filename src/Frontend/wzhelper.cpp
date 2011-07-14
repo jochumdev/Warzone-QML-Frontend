@@ -238,7 +238,7 @@ Q_INVOKABLE void WzHelper::setConfigValue(const QString& name, const QVariant& v
 
     else
     {
-        wzLog(WzLog::LOG_ERROR) << "Unknown config value" << name;
+        wzLog(LOG_ERROR) << "Unknown config value" << name;
     }
 }
 
@@ -388,7 +388,7 @@ Q_INVOKABLE const QVariant WzHelper::getConfigValue(const QString& name)
 
     else
     {
-        wzLog(WzLog::LOG_ERROR) << "Unknown config value" << name;
+        wzLog(LOG_ERROR) << "Unknown config value" << name;
         return 0;
     }
 }

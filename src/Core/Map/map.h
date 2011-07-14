@@ -1,8 +1,12 @@
+#ifndef CORE_MAP_MAP_H
+#define CORE_MAP_MAP_H
+
 // Qt Core
 #include <QtCore/QVariantMap>
 
-namespace Map {
+extern const int LOG_MAP;
 
+namespace Map {
 
 enum GAMETYPES {
     GAMETYPE_CAMPAIGN_T1 = 12,
@@ -12,8 +16,6 @@ enum GAMETYPES {
     GAMETYPE_SKIRMISH_T2 = 18,
     GAMETYPE_SKIRMISH_T3 = 19
 };
-
-extern const int LOG_MAP;
 
 /**
  * @brief Returns a list of maps for the given GAMETYPE.
@@ -38,3 +40,5 @@ QVariantMap& getList(GAMETYPES gameType = GAMETYPE_SKIRMISH_T1);
 void loadMap(const QString &path);
 
 } // namespace Map {
+
+#endif // #ifndef CORE_MAP_MAP_H

@@ -225,7 +225,7 @@ const QStringList Map::imageList()
 void Map::setError(int errorCode, QString errorString, int errorLine)
 {
 #ifdef IMAGEMAP_DEBUG
-    wzLog(WzLog::LOG_ERROR) << "Code" << errorCode
+    wzLog(LOG_ERROR) << "Code" << errorCode
                             << errorString << "at line" << errorLine;
 #endif
 
