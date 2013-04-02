@@ -258,15 +258,23 @@ public:
 class QPhysfsEngineHandler : public QAbstractFileEngineHandler
 {
 public:
+    QPhysfsEngineHandler(const char* prefix)
+    {
+        m_prefix = prefix;
+    }
+
     inline QAbstractFileEngine *create(const QString &fileName) const
     {
-        if (fileName.toLower().startsWith("wz::"))
+        if (fileName.toLower().startsWith(m_prefix))
         {
             QString newPath = fileName;
             return new QPhysfsEngine(newPath.remove(0, 4));
         }
         return NULL;
     }
+
+private:
+    QString m_prefix;
 };
 
 } // namespace FileSystem {

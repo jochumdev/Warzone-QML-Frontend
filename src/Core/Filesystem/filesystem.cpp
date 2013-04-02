@@ -1,3 +1,23 @@
+/*
+    This file is part of Warzone 2100.
+    Copyright (C) 2011  Warzone 2100 Project
+
+    Warzone 2100 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Warzone 2100 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Warzone 2100; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+
+// Self
 #include <Core/Filesystem/filesystem.h>
 
 // "wz::" handler
@@ -9,7 +29,7 @@
 #include <QtCore/QCoreApplication>
 
 // Logging
-#include <lib/WzLog/Log.h>
+#include <lib/WzLog/Logger.h>
 
 // For getPlatformUserDir
 // TODO: Needs testing.
@@ -25,23 +45,24 @@ namespace FileSystem {
 
 static QMap<unsigned int, QString> searchPathRegistry;
 
-static QStringList global_mods;
-static QStringList campaign_mods;
-static QStringList multiplay_mods;
+static bool modListLoaded = false;
 
-static bool use_override_mods = false;
-static QStringList override_mods;
+// These contain the mod name as key and its path as value.
+static MOD_LIST mods_global;
+static MOD_LIST mods_campaign;
+static MOD_LIST mods_multiplay;
+static MOD_LIST mods_loaded;
 
-static QString     mod_list;
-static QStringList loaded_mods;
+// Flag to detect if any map is in the searchpath.
+// This is required as mods needs to be loaded before any maps.
+static bool mapLoaded = false;
 
 static searchPathMode currentSearchMode = mod_clean;
-// To remember the last used searchpath when detecting maps/mods.
+// To remember the last used searchpath when detecting maps.
 static searchPathMode lastSearchMode = mod_clean;
 
 // Registers the "wz::" Filesystem handler.
-// FIXME: This is ugly as global
-QPhysfsEngineHandler engine;
+QPhysfsEngineHandler qPhysfsEngine("wz::");
 
 // Priority range for mods in searchPathRegistry.
 const int PRIORITY_MOD_MIN = 100;
@@ -53,11 +74,13 @@ const int PRIORITY_DATA = 300;
 
 // Static Functions declarations.
 static void getPlatformUserDir(QString& result, const char* appSubDir);
-static void addLoadedMod(QString modname);
 static void printSearchPath();
-static void addSubdirs(const QString& basedir, const char* subdir, const bool appendToPath, const QStringList& checkList, bool addToModList);
+static void addSubdirs(const QString& basedir, const char* subdir, const bool appendToPath);
 static void removeSubdirs(const QString& basedir, const char* subdir);
 static void registerSearchPath(QString path, unsigned int priority);
+
+static void findMods(MOD_LIST& modList, const char* subdir);
+static void getAvailableMods();
 
 void init(const char* binpath, const char* appSubDir, const QString& cmdUserdir)
 {
@@ -244,34 +267,6 @@ static void getPlatformUserDir(QString& result, const char* appSubDir)
     result.append(appSubDir).append(PHYSFS_getDirSeparator());
 }
 
-static void addLoadedMod(QString modname)
-{
-    if (modname.endsWith(".wz"))
-    {
-        modname.chop(3);
-    }
-
-    if (modname.endsWith(".cam") || modname.endsWith(".mod"))
-    {
-        modname.chop(4);
-    }
-    else if (modname.endsWith(".gmod"))
-    {
-        modname.chop(5);
-    }
-
-    if (!loaded_mods.contains(modname))
-    {
-        loaded_mods.append(modname);
-    }
-}
-
-void clearOverrides()
-{
-    use_override_mods = false;
-    override_mods.clear();
-}
-
 static void printSearchPath()
 {
     char ** i, ** searchPath;
@@ -291,10 +286,8 @@ static void printSearchPath()
  * @param basedir Base directory
  * @param subdir A subdirectory of basedir
  * @param appendToPath Whether to append or prepend
- * @param checkList List of directories to check.
- * @param addToModList Add found mods to the modlist?
  */
-static void addSubdirs(const QString& basedir, const char* subdir, const bool appendToPath, const QStringList& checkList, bool addToModList)
+static void addSubdirs(const QString& basedir, const char* subdir, const bool appendToPath)
 {
     //char buf[256];
     char **subdirlist, **i;
@@ -306,19 +299,12 @@ static void addSubdirs(const QString& basedir, const char* subdir, const bool ap
 #ifdef DEBUG
         wzLog(LOG_NEVER) << QString("Examining subdir: [%1]").arg(*i);
 #endif // DEBUG
-        if (*i[0] != '.' && (checkList.isEmpty() || checkList.contains(*i)))
+        if (*i[0] != '.')
         {
             QString tmpstr = QString("%1%2%3%4").arg(basedir).arg(subdir).arg(PHYSFS_getDirSeparator()).arg(*i);
 #ifdef DEBUG
             wzLog(LOG_NEVER) << QString("Adding [%1] to search path").arg(tmpstr);
 #endif // DEBUG
-
-            if (addToModList)
-            {
-                addLoadedMod(*i);
-                //snprintf(buf, sizeof(buf), "mod: %s", *i);
-                //addDumpInfo(buf);
-            }
 
             PHYSFS_addToSearchPath(tmpstr.toUtf8().constData(), appendToPath);
         }
@@ -355,8 +341,7 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
 {
     QString tmpstr;
 
-    if (mode != currentSearchMode || force ||
-            (use_override_mods && override_mods != loaded_mods))
+    if (mode != currentSearchMode || force)
     {
         if (mode != mod_clean)
         {
@@ -364,10 +349,6 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
         }
 
         currentSearchMode = mode;
-
-        // Clear mods as we detect them now (again).
-        mod_list.clear();
-        loaded_mods.clear();
 
         switch ( mode )
         {
@@ -413,8 +394,17 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
                 PHYSFS_removeFromSearchPath(tmpstr.toUtf8().constData());
             } // foreach(QString path, searchPathRegistry)
             break;
+
         case mod_campaign:
-            wzLog(LOG_FS) << "*** Switching to campaign mods ***";
+        case mod_multiplay:
+            if (mode == mod_campaign)
+            {
+                wzLog(LOG_FS) << "*** Switching to campaign mods ***";
+            }
+            else
+            {
+                wzLog(LOG_FS) << "*** Switching to multiplay mods ***";
+            }
 
             // Find and add sequences.wz first
             foreach(QString path, searchPathRegistry)
@@ -432,18 +422,24 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
 
                 // Add global and campaign mods
                 PHYSFS_addToSearchPath(path.toUtf8().constData(), PHYSFS_APPEND);
-                addSubdirs(path, "mods/music", PHYSFS_APPEND, QStringList(), false );
-                addSubdirs(path, "mods/global", PHYSFS_APPEND, use_override_mods?override_mods:global_mods, true );
-                addSubdirs(path, "mods", PHYSFS_APPEND, use_override_mods?override_mods:global_mods, true );
-                addSubdirs(path, "mods/autoload", PHYSFS_APPEND, use_override_mods?override_mods:QStringList(), true );
-                addSubdirs(path, "mods/campaign", PHYSFS_APPEND, use_override_mods?override_mods:campaign_mods, true );
+                addSubdirs(path, "mods/music", PHYSFS_APPEND);
+                addSubdirs(path, "mods/autoload", PHYSFS_APPEND);
                 if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
                 {
-                    wzLog(LOG_FS) << QString("* Failed to remove path %1 again").arg(path);
+                    wzLog(LOG_FS) << QString("Failed to remove path %1 again").arg(path);
                 }
 
-                // Add plain dir
-                // PHYSFS_addToSearchPath(path.toUtf8().constData(), PHYSFS_APPEND );
+                if (mode == mod_multiplay)
+                {
+                    tmpstr = path;
+                    tmpstr += "mp";
+                    if (PHYSFS_mount(tmpstr.toUtf8().constData(), NULL, PHYSFS_APPEND) == 0)
+                    {
+                        tmpstr = path;
+                        tmpstr += "mp.wz";
+                        PHYSFS_mount(tmpstr.toUtf8().constData(), NULL, PHYSFS_APPEND);
+                    }
+                }
 
                 // Add base files
                 tmpstr = path;
@@ -456,87 +452,17 @@ bool rebuildSearchPath( searchPathMode mode, bool force)
                 }
             }
             break;
-        case mod_multiplay:
-            wzLog(LOG_FS) << "*** Switching to multiplay mods ***";
 
-            // Find and add sequences.wz first
-            foreach(QString path, searchPathRegistry)
-            {
-                tmpstr = path;
-                tmpstr += "sequences.wz";
-                PHYSFS_addToSearchPath(tmpstr.toUtf8().constData(), PHYSFS_APPEND);
-            }
-
-            foreach(QString path, searchPathRegistry)
-            {
-                #ifdef DEBUG
-                    wzLog(LOG_FS) << QString("Adding [%1] to search path").arg(path);
-                #endif
-
-                // Add maps and global and multiplay mods
-                PHYSFS_addToSearchPath(path.toUtf8().constData(), PHYSFS_APPEND);
-                addSubdirs(path, "mods/music", PHYSFS_APPEND, QStringList(), false);
-                addSubdirs(path, "mods/global", PHYSFS_APPEND, use_override_mods?override_mods:global_mods, true);
-                addSubdirs(path, "mods", PHYSFS_APPEND, use_override_mods?override_mods:global_mods, true);
-                addSubdirs(path, "mods/autoload", PHYSFS_APPEND, use_override_mods?override_mods:QStringList(), true);
-                addSubdirs(path, "mods/multiplay", PHYSFS_APPEND, use_override_mods?override_mods:multiplay_mods, true);
-                if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
-                {
-                    wzLog(LOG_FS) << QString("* Failed to remove path %1 again").arg(path);
-                }
-
-                // Add multiplay patches
-                tmpstr = path;
-                tmpstr += "mp";
-                if (PHYSFS_mount(tmpstr.toUtf8().constData(), NULL, PHYSFS_APPEND) == 0)
-                {
-                    tmpstr = path;
-                    tmpstr += "mp.wz";
-                    PHYSFS_mount(tmpstr.toUtf8().constData(), NULL, PHYSFS_APPEND);
-                }
-
-                // Add plain dir
-                // PHYSFS_mount(path.toUtf8().constData(), NULL, PHYSFS_APPEND);
-
-                // Add base files
-                tmpstr = path;
-                tmpstr += "base";
-                if (PHYSFS_mount(tmpstr.toUtf8().constData(), NULL, PHYSFS_APPEND) == 0)
-                {
-                    tmpstr = path;
-                    tmpstr += "base.wz";
-                    PHYSFS_mount(tmpstr.toUtf8().constData(), NULL, PHYSFS_APPEND);
-                }
-            }
-            break;
         default:
             wzLog(LOG_ERROR) << QString("Can't switch to unknown mods %1").arg(mode);
             return false;
         }
 
-        if ((use_override_mods) && mode != mod_clean)
-        {
-            if (use_override_mods && override_mods != loaded_mods)
-            {
-                wzLog(LOG_POPUP) << QString().sprintf("The required mod could not be loaded: %s\n\nWarzone will try to load the game without it.", override_mods.join(", ").toUtf8().constData());
-            }
-            clearOverrides();
-            currentSearchMode = mod_override;
-        }
-
         // User's home dir must be first so we allways see what we write
         PHYSFS_removeFromSearchPath(PHYSFS_getWriteDir());
         PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), PHYSFS_PREPEND);
+    }
 
-#ifdef DEBUG
-        printSearchPath();
-#endif // DEBUG
-    }
-    else if (use_override_mods)
-    {
-        // override mods are already the same as current mods, so no need to do anything
-        clearOverrides();
-    }
     return true;
 }
 
@@ -578,27 +504,6 @@ static void registerSearchPath(QString path, unsigned int priority)
     return;
 }
 
-/**
- * Splits the given string by ", " and adds the result to the
- * override_mods list.
- */
-void setOverrideMods(const QString& modlist)
-{
-   override_mods.append(modlist.split(", "));
-   use_override_mods = true;
-}
-
-QString& getModList()
-{
-    if (!mod_list.isEmpty())
-    {
-        return mod_list;
-    }
-
-    mod_list = loaded_mods.join(", ");
-    return mod_list;
-}
-
 void loadMaps()
 {
     // Remember the last search mode.
@@ -610,10 +515,10 @@ void loadMaps()
     foreach(QString path, searchPathRegistry)
     {
         PHYSFS_mount(path.toUtf8().constData(), NULL, PHYSFS_APPEND);
-        addSubdirs(path, "maps", PHYSFS_APPEND, QStringList(), false);
+        addSubdirs(path, "maps", PHYSFS_APPEND);
         if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
         {
-            wzLog(LOG_FS) << QString("* Failed to remove path %1 again").arg(path);
+            wzLog(LOG_FS) << QString("Failed to remove path %1 again").arg(path);
         }
     }
 }
@@ -621,6 +526,7 @@ void loadMaps()
 void loadMap(const char *path)
 {
     PHYSFS_addToSearchPath(path, PHYSFS_APPEND);
+    mapLoaded = true;
 }
 
 void unloadMaps()
@@ -632,11 +538,131 @@ void unloadMaps()
         removeSubdirs(path, "maps");
         if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
         {
-            wzLog(LOG_FS) << QString("* Failed to remove path %1 again").arg(path);
+            wzLog(LOG_FS) << QString("Failed to remove path %1 again").arg(path);
         }
     }
 
     rebuildSearchPath(lastSearchMode);
+    mapLoaded = false;
 }
+
+static void findMods(MOD_LIST& modList, const char* subdir)
+{
+    char **subdirlist, **i;
+    QStringList fullpath;
+    QStringList modpath;
+
+    subdirlist = PHYSFS_enumerateFiles(subdir);
+
+    for (i = subdirlist; *i != NULL; ++i)
+    {
+        if (*i[0] != '.')
+        {
+            modpath.clear();
+            modpath << subdir
+                    << PHYSFS_getDirSeparator()
+                    << *i;
+
+            fullpath.clear();
+            fullpath << PHYSFS_getRealDir(modpath.join("").toUtf8().constData())
+                     << modpath;
+
+            modList.insert(*i, fullpath.join(""));
+        }
+    }
+}
+
+static void getAvailableMods()
+{
+    lastSearchMode = currentSearchMode;
+    rebuildSearchPath(mod_multiplay);
+
+    foreach(QString path, searchPathRegistry)
+    {
+        PHYSFS_mount(path.toUtf8().constData(), NULL, PHYSFS_APPEND);
+    }
+
+    mods_global.clear();
+    findMods(mods_global, "mods/global");
+
+    mods_campaign.clear();
+    findMods(mods_campaign, "mods/campaign");
+
+    mods_multiplay.clear();
+    findMods(mods_multiplay, "mods/multiplay");
+
+    foreach(QString path, searchPathRegistry)
+    {
+       if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
+       {
+            wzLog(LOG_FS) << QString("Failed to remove path %1 again").arg(path);
+       }
+    }
+
+    rebuildSearchPath(lastSearchMode);
+
+    modListLoaded = true;
+}
+
+bool loadMod(GAMEMOD_TYPE type, const char* mod, bool reloadList)
+{
+    if (mapLoaded)
+    {
+        wzLog(LOG_ERROR) << "Cannot load a mod while a map has been loaded.";
+        return false;
+    }
+
+    if (!modListLoaded || reloadList)
+    {
+        getAvailableMods();
+    }
+
+    MOD_LIST list;
+    switch(type)
+    {
+        case GAMEMOD_GLOBAL:
+            list = mods_global;
+        break;
+        case GAMEMOD_CAMPAIGN:
+            list = mods_campaign;
+        break;
+        case GAMEMOD_MULTIPLAY:
+            list = mods_multiplay;
+        break;
+    }
+
+    if (!list.contains(mod))
+    {
+        return false;
+    }
+    if (PHYSFS_mount(list.value(mod).toUtf8().constData(), NULL, PHYSFS_APPEND) == 0)
+    {
+        wzLog(LOG_FS) << QString("Failed to load mod \"%1\", error: %2")
+                            .arg(mod)
+                            .arg(PHYSFS_getLastError());
+        return false;
+    }
+    mods_loaded.insert(mod, list.value(mod));
+
+    return true;
+}
+
+void unloadMods()
+{
+    foreach(QString path, mods_loaded)
+    {
+        if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
+        {
+            wzLog(LOG_FS) << QString("Failed to remove mod %1 again").arg(path);
+        }
+    }
+    mods_loaded.clear();
+}
+
+const MOD_LIST& getLoadedMods()
+{
+    return mods_loaded;
+}
+
 
 } // namespace FileSystem {
