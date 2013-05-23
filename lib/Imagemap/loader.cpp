@@ -132,12 +132,12 @@ const QString& Loader::errorString()
   return d->m_errorString;
 }
 
-const int Loader::errorCode()
+int Loader::errorCode()
 {
   return d->m_errorCode;
 }
 
-const int Loader::errorLine()
+int Loader::errorLine()
 {
   return d->m_errorLine;
 }

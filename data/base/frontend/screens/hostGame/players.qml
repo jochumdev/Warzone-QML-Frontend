@@ -1,4 +1,5 @@
 import QtQuick 1.0
+import Warzone 1.0
 import "../../widgets" as Widgets
 
 Item {
@@ -117,7 +118,7 @@ Item {
             }
 
             // Non host players arent allowed to use a used flag, disable them.
-            if (!hostGameScreen.isHost)
+            if (!wz.config.get("isHost"))
             {
                 for (var i=0; i<playersModel.count;i++)
                 {
@@ -163,8 +164,8 @@ Item {
 
             // Configure and enable the kick button
             if (!playersModel.get(playerIndex).isAI &&
-                playerIndex != hostGameScreen.playerIndex &&
-                hostGameScreen.isHost)
+                playerIndex != wz.config.get("playerIndex") &&
+                wz.config.get("isHost"))
             {
                 container._kickPlayer = playerIndex
                 kickButton.opacity = 1
@@ -256,7 +257,7 @@ Item {
             border.color: "#0015f0"
             border.width: 1
 
-            opacity: (hostGameScreen.isSkirmish ? 0 : 1)
+            opacity: (wz.config.get("gameType") == Wz.Multiplayer ? 1 : 0)
 
             Text {
                 anchors.fill: parent
@@ -421,7 +422,7 @@ Item {
 
                     if (hostGameScreen.playerIndex == oldIndex)
                     {
-                        hostGameScreen.playerIndex = slotIndex
+                        wz.config.set("playerIndex", slotIndex)
                     }
                 }
             }
@@ -465,10 +466,10 @@ Item {
         rightSideText.text = wz.tr("Players")
 
         playersModel.clear()
-        playersModel.append({isAI: false, team: 0, playerColor: 0, name: wz.getConfigValue("playerName"), isReady: false, isHost: true, isOpen: false,
+        playersModel.append({isAI: false, team: 0, playerColor: 0, name: wz.config.get("playerName"), isReady: false, isHost: true, isOpen: false,
                             statsPlayed: 0, statsWins: 0, statsLosses: 0, statsTotalKills: 0, statsTotalScore: 0});
 
-        if (hostGameScreen.isSkirmish)
+        if (!wz.config.get("gameType") == Wz.Multiplayer)
         {
             for(var i=1;i<hostGameScreen.maxPlayers;i++)
             {
@@ -490,7 +491,7 @@ Item {
         id: playersDelegate
 
         Rectangle {
-            width: hostGameScreen.fixedTeams ? 248 : 217
+            width: hostGameScreen._alliance ? 248 : 217
             height: 38
 
             color: "#000161"
@@ -531,7 +532,7 @@ Item {
                 id: colorflag
                 width: 33; height: parent.height
 
-                anchors.left: hostGameScreen.fixedTeams ? teamselector.right : parent.left
+                anchors.left: hostGameScreen._alliance ? teamselector.right : parent.left
 
                 color: "#000161"
                 border.color: "#0015f0"

@@ -16,8 +16,8 @@
         along with Warzone 2100; if not, write to the Free Software
         Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef _physfs_ext_h
-#define _physfs_ext_h
+#ifndef __SRC_CORE_FILESYSTEM_PHYSFS_EXT_H__
+#define __SRC_CORE_FILESYSTEM_PHYSFS_EXT_H__
 
 #include <inttypes.h>
 #include <physfs.h>
@@ -138,4 +138,4 @@ static inline char *PHYSFS_fgets(char *s, int size, PHYSFS_file *stream)
         return NULL;
 }
 
-#endif // _physfs_ext_h
+#endif // #ifndef __SRC_CORE_FILESYSTEM_PHYSFS_EXT_H__

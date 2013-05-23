@@ -1,6 +1,5 @@
-SET(wzlog_SOURCES "LoggerDest.cpp"
-                  "Logger.cpp"
-                  "Log.cpp")
+SET(wzlog_SOURCES "Logger.cpp"
+                  "LoggerDest.cpp")
 
 SET(wzlog_LIBRARIES ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 

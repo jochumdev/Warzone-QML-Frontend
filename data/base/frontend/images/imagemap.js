@@ -10,6 +10,7 @@
 "background3.png":{"cache":false,"full":{"Background 3": [0,0]}},
 "background4.png":{"cache":false,"full":{"Background 4": [0,0]}},
 "background5.png":{"cache":false,"full":{"Background 5": [0,0]}},
+"background6.png":{"cache":false,"full":{"Background 6": [0,0]}},
 "credits.png":{"cache":false,"full":{"Credits":[0,0]}},
 "buttons.svg":{
     "named": {
@@ -20,7 +21,8 @@
         "button ffa":"ffa","button hand hi":"hand_hi","button alliances":"alliances","button ffa hi":"ffa_hi","button hand":"hand","button alliances hi":"alliances_hi",
         "button no bases":"no_bases","button medium bases hi":"medium_bases_hi","button full bases":"full_bases","button no bases hi":"no_bases_hi","button medium bases":"medium_bases","button full bases hi":"full_bases_hi",
         "button low tech":"low_tech","button medium tech hi":"medium_tech_hi","button high tech hi":"high_tech_hi","butt tech low hi":"tech_low_hi","button medium tech":"medium_tech","button high tech hi":"high_tech_hi",
-        "button fixed teams":"fixed_teams","button fixed teams hi":"fixed_teams_hi","button go":"go","button checkbox yes hi":"checkbox_yes_hi","button go hi":"go_hi","button checkbox yes hi":"checkbox_yes_hi"
+        "button fixed teams":"fixed_teams","button fixed teams hi":"fixed_teams_hi","button go":"go","button checkbox yes hi":"checkbox_yes_hi","button go hi":"go_hi","button checkbox yes hi":"checkbox_yes_hi",
+        "button scavs on":"scavs_on","button scavs on hi":"scavs_on_hi","button scavs off":"scavs_off","button scavs off hi":"scavs_off_hi"
     }},
 "various.svg":{
     "named": {

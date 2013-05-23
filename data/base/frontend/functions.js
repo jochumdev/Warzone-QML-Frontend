@@ -4,7 +4,8 @@ var backgrounds = ["Background 0",
                    "Background 2",
                    "Background 3",
                    "Background 4",
-                   "Background 5"]
+                   "Background 5",
+                   "Background 6"]
 
 function getRandBackground()
 {

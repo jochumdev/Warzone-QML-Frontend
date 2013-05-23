@@ -1,4 +1,5 @@
 import QtQuick 1.0
+import Warzone 1.0
 import "../widgets" as Widgets
 import "../functions.js" as Support
 
@@ -11,28 +12,40 @@ Item {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
 
-    property string     map         :       "Rush-T1"
-    property int        maxPlayers  :       4
-    property int        techlevel   :       1
-    property bool       fixedTeams  :       false
-
-    // Skirmish game or multiplayer game?
-    property bool       isSkirmish  :       true
-    // Are we the host and able to do host things?
-    property bool       isHost      :       true
-    // The index of this player, always 0 for hosts.
-    property int        playerIndex :       0
+    property string     map
+    property int        maxPlayers
+    property int        techlevel
 
     // Contains all the players
     ListModel {
         id: playersModel
     }
 
+    // Internal: to allow switching in the players screen.
+    property bool       _alliance
+
     // Internal: Indicates that we are in the player screen.
     property bool       _isHosting  :       false
 
     property variant    _subComponent
     property variant    _subScreen
+
+    Component.onCompleted: {
+        _alliance = wz.config.get("alliance") == 1 ? true : false
+
+        map = wz.config.get("mapName")
+        techlevel = wz.config.get("techlevel")
+
+        maxPlayers = wz.setMap(techlevel, map)
+
+        if (maxPlayers == 0)
+        {
+            // TODO: Unknown map do something here.
+            map = "Rush"
+            techlevel = Wz.Techlevel_1
+            maxPlayers = wz.setMap(techlevel, map)
+        }
+    }
 
     function createMenu(file)
     {
@@ -98,12 +111,19 @@ Item {
             onClicked: {
                 if (!hostGameScreen._isHosting) {
                     hostGameScreen.destroy();
-                    window.loadMenu = window.backMenu;
-                    createScreen(window.backScreen);
+                    if (wz.config.get("gameType") == Wz.Multiplayer)
+                    {
+                        createScreen("screens/multiplayer.qml")                        
+                    }
+                    else
+                    {
+                        window.loadMenu = "menu/singlePlayer.qml"
+                        createScreen("screens/menuScreen.qml")
+                    }
                 } else {
                     hostGameScreen._subScreen.destroy();
 
-                    if (!hostGameScreen.isSkirmish) {
+                    if (wz.config.get("gameType") == Wz.Multiplayer) {
                         passwordButton.state = ""
                         passwordInput.state = ""
                         hostnameInput.state = ""
@@ -146,7 +166,7 @@ Item {
                 hostGameScreen._isHosting = true
                 createMenu("hostGame/players.qml")
                 chatBox.clear()
-                if (!hostGameScreen.isSkirmish) {
+                if (wz.config.get("gameType") == Wz.Multiplayer) {
                     chatBox.addSystemMessage("You'r game is not listed. This is a dummy, haha!")
                 }
             }
@@ -159,19 +179,19 @@ Item {
             y: 2
             Widgets.SingleLineEdit {
                 id: playername
-                text: wz.getConfigValue("playerName")
+                text: wz.config.get("playerName")
                 maximumLength: 14
 
                 onAccepted: {
-                    if (wz.getConfigValue("playerName") != text) {
-                        if (!hostGameScreen.isSkirmish) {
-                            chatBox.addLine(wz.getConfigValue("playerName") + " -> " + text);
+                    if (wz.config.get("playerName") != text) {
+                        if (wz.config.get("gameType") == Wz.Multiplayer) {
+                            chatBox.addLine(wz.config.get("playerName") + " -> " + text);
                         }
 
-                        wz.setConfigValue("playerName", text)
+                        wz.config.set("playerName", text)
 
                         if (playersModel.count) {
-                            playersModel.setProperty(hostGameScreen.playerIndex, "name", text)
+                            playersModel.setProperty(wz.config.get("playerIndex"), "name", text)
                         }
                     }
                 }
@@ -194,13 +214,13 @@ Item {
             Widgets.SingleLineEdit {
                 id: hostnameInput
 
-                text: (hostGameScreen.isSkirmish ? "One-Player Skirmish" : wz.getConfigValue("gameName"))
+                text: (wz.config.get("gameType") == Wz.Multiplayer ? wz.config.get("gameName") : wz.tr("One-Player Skirmish"))
 
-                state: (hostGameScreen.isSkirmish ? "off" : "")
+                state: (wz.config.get("gameType") == Wz.Multiplayer ? "" : "off")
             }
             Widgets.SingleLineEdit {
-                id: map
-                text: hostGameScreen.map
+                id: mapInput
+                text: hostGameScreen.map + "-T" + hostGameScreen.techlevel
                 readOnly: true
 
                 Widgets.ImageButton {
@@ -228,7 +248,7 @@ Item {
                 id: passwordInput
                 text: wz.tr("Enter password here")
 
-                state: (hostGameScreen.isSkirmish ? "off" : "")
+                state: (wz.config.get("gameType") == Wz.Multiplayer ? "" : "off")
 
                 Widgets.ImageButton {
                     id: passwordButton
@@ -245,7 +265,7 @@ Item {
                     activeSourceWidth: 22
                     activeSourceHeight: 22
 
-                    state: (hostGameScreen.isSkirmish ? "off" : "")
+                    state: (wz.config.get("gameType") == Wz.Multiplayer ? "" : "off")
 
                     onClicked: {
                         defaultSource: "image://imagemap/icon lock on"
@@ -261,12 +281,15 @@ Item {
                     id: scavs
                     x: 105
                     y: 3
-                    image1Source: "image://imagemap/SCAVENGERS ON"
-                    image1Hover: "image://imagemap/SCAVENGERS ON HI"
-                    image1Active: "image://imagemap/QUESTION"
-                    image2Source: "image://imagemap/SCAVENGERS OFF"
-                    image2Hover: "image://imagemap/SCAVENGERS OFF HI"
-                    image2Active: "image://imagemap/QUESTION"
+                    image1Source: "image://imagemap/button scavs on"
+                    image1Hover: "image://imagemap/button scavs on hi"
+                    image1Active: "image://imagemap/button active"
+                    image2Source: "image://imagemap/button scavs off"
+                    image2Hover: "image://imagemap/button scavs off hi"
+                    image2Active: "image://imagemap/button active"
+
+                    state: wz.config.get("scavengers") ? 2 : 1
+                    onStateChanged: state == 2 ? wz.config.set("scavengers", true) : wz.config.set("scavengers", false)
                 }
             }
             Widgets.SingleLineEdit {
@@ -282,8 +305,8 @@ Item {
                     image2Hover: "image://imagemap/button fog on hi"
                     image2Active: "image://imagemap/button active"
 
-                    state: wz.getConfigValue("fog") ? 2 : 1
-                    onStateChanged: state == 2 ? wz.setConfigValue("fog", true) : wz.setConfigValue("fog", false)
+                    state: wz.config.get("fog") ? 2 : 1
+                    onStateChanged: state == 2 ? wz.config.set("fog", true) : wz.config.set("fog", false)
                 }
             }
             Widgets.SingleLineEdit {
@@ -302,15 +325,10 @@ Item {
                     image3Hover: "image://imagemap/button fixed teams hi"
                     image3Active: "image://imagemap/button active"
 
-                    state: wz.getConfigValue("alliance") + 1
+                    state: wz.config.get("alliance") + 1
                     onStateChanged: {
-                        if (alliances.state == 3) {
-                            hostGameScreen.fixedTeams = true
-                        }
-                        else {
-                            hostGameScreen.fixedTeams = false
-                        }
-                        wz.setConfigValue("alliance", state - 1)
+                        wz.config.set("alliance", state - 1)
+                        state == 2 ? hostGameScreen._alliance = true : false
                     }
                 }
             }
@@ -331,7 +349,7 @@ Item {
                     image3Active: "image://imagemap/button active"
 
                     state: {
-                        var cfg = wz.getConfigValue("power");
+                        var cfg = wz.config.get("power");
                         switch (cfg)
                         {
                             case 400:
@@ -348,7 +366,7 @@ Item {
                         }
                     }
                     onStateChanged: {
-                        wz.setConfigValue("power", (state == 1 ? 400 : (state == 2 ? 700 : 1000)))
+                        wz.config.set("power", (state == 1 ? 400 : (state == 2 ? 700 : 1000)))
                     }
                 }
             }
@@ -368,8 +386,8 @@ Item {
                     image3Hover: "image://imagemap/button full bases hi"
                     image3Active: "image://imagemap/button active"
 
-                    state: wz.getConfigValue("base") + 1
-                    onStateChanged: wz.setConfigValue("base", state - 1)
+                    state: wz.config.get("base") + 1
+                    onStateChanged: wz.config.set("base", state - 1)
                 }
             }
             Widgets.SingleLineEdit {

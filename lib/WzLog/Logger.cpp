@@ -1,34 +1,27 @@
-// Copyright (c) 2010, Razvan Petru
-// Copyright (c) 2011, Rene Jochum
-// All rights reserved.
+/*
+    This file is part of Warzone 2100.
+    Copyright (c) 2010, Razvan Petru
+    Copyright (C) 2011  Warzone 2100 Project
 
-// Redistribution and use in source and binary forms, with or without modification,
-// are permitted provided that the following conditions are met:
+    Warzone 2100 is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-// * Redistributions of source code must retain the above copyright notice, this
-//   list of conditions and the following disclaimer.
-// * Redistributions in binary form must reproduce the above copyright notice, this
-//   list of conditions and the following disclaimer in the documentation and/or other
-//   materials provided with the distribution.
-// * The name of the contributors may not be used to endorse or promote products
-//   derived from this software without specific prior written permission.
+    Warzone 2100 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-// IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-// LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-// OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-// OF THE POSSIBILITY OF SUCH DAMAGE.
+    You should have received a copy of the GNU General Public License
+    along with Warzone 2100; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+*/
 
 #include "Logger.h"
 #include "LoggerDest.h"
 
 // QT
-#include <QtCore/QtGlobal>
 #include <QtCore/QMutex>
 #include <QtCore/QList>
 #include <QtCore/QDateTime>
@@ -45,43 +38,47 @@
 
 namespace WzLog {
 
-typedef QList<Destination*> DestinationList;
-
+typedef QList<LoggerDestination*> LoggerDestinationList;
 static const QString fmtDateTime("hh:mm:ss");
 
 class LoggerImpl
 {
 public:
     LoggerImpl() :
-        useInputBuffer(true)
+        useInputBuffer(true),
+        popupTitle("We detected a problem."),
+        popupBody("A non fatal error has occurred.\n\n%1\n\n"),
+        fatalTitle("Application terminated unexpectedly"),
+        fatalBody("Please check the console output."),
+        alwaysFlush(false)
     {
         // This MUST be in the same order as the Levels Enum!
-        levelNames.append("ALL");
+        levelNames.append("all");
         levelStatus.append(false);
 
-        levelNames.append("TRACE");
+        levelNames.append("trace");
         levelStatus.append(false);
 
-        levelNames.append("DEBUG");
+        levelNames.append("debug");
         levelStatus.append(false);
 
-        levelNames.append("INFO");
+        levelNames.append("info");
         levelStatus.append(true);
 
-        levelNames.append("WARN");
+        levelNames.append("warning");
+        levelStatus.append(false);
+
+        levelNames.append("error");
         levelStatus.append(true);
 
-        levelNames.append("ERROR");
-        levelStatus.append(true);
-
-        levelNames.append("FATAL");
+        levelNames.append("fatal");
         levelStatus.append(true);
 
         // Last of "levels" for setLevelStatus
-        levelNames.append("NEVER");
+        levelNames.append("never");
         levelStatus.append(false);
 
-        levelNames.append("POPUP");
+        levelNames.append("popup");
         levelStatus.append(true);
     }
 
@@ -104,7 +101,7 @@ public:
     QMutex             logMutex;
     QStringList        levelNames;
     QList<bool>        levelStatus;
-    DestinationList    destList;
+    LoggerDestinationList    destList;
 
     // Input buffer
     bool                useInputBuffer;
@@ -112,6 +109,17 @@ public:
     qint32              next;
     qint32              prev;
     QString             lastMessage;
+
+    // LOG_POPUP
+    const char         *popupTitle;
+    const char         *popupBody;
+
+    // LOG_FATAL popup
+    const char         *fatalTitle;
+    const char         *fatalBody;
+
+    // Flushing
+    bool                alwaysFlush;
 };
 
 Logger::Logger() :
@@ -124,9 +132,11 @@ Logger::~Logger()
     delete d;
 }
 
-void Logger::addDestination(Destination* destination)
+void Logger::addDestination(LoggerDestination* destination)
 {
     assert(destination);
+
+    destination->setAlwaysFlush(d->alwaysFlush);
     d->destList.push_back(destination);
 }
 
@@ -140,19 +150,22 @@ int Logger::getLoggingLevel(const QString& name)
     return d->levelNames.indexOf(name);
 }
 
-void Logger::setLevelStatus(const QString& name, bool status)
+bool Logger::setLevelStatus(const QString& name, bool status)
 {
     int level = getLoggingLevel(name);
     if (level == -1) {
-        return;
+        return false;
     }
 
-    setLevelStatus(level, status);
+    return setLevelStatus(level, status);
 }
 
-void Logger::setLevelStatus(int level, bool status)
+bool Logger::setLevelStatus(int level, bool status)
 {
-    assert(d->levelStatus.size() >= level);
+    if (d->levelStatus.size() <= level)
+    {
+        return false;
+    }
 
     QMutexLocker lock(&d->logMutex);
 
@@ -160,22 +173,24 @@ void Logger::setLevelStatus(int level, bool status)
     {
         for (int i=0; i < d->levelStatus.size(); i++)
         {
-            d->levelStatus[i] = true;
+            d->levelStatus[i] = status;
         }
 
-        return;
+        return true;
     }
     else if (level < LOG_NEVER)
     {
         for (int i=level; i < LOG_NEVER; i++)
         {
-            d->levelStatus[i] = true;
+            d->levelStatus[i] = status;
         }
 
-        return;
+        return true;
     }
 
     d->levelStatus[level] = status;
+
+    return true;
 }
 
 bool Logger::checkLevel(int level)
@@ -198,13 +213,45 @@ void Logger::setInputBuffer(bool state)
     }
 }
 
-void Logger::Helper::sprintf(const char* cformat, ...)
+void Logger::setAlwaysFlush(bool state)
 {
-    va_list ap;
+    d->alwaysFlush = state;
 
+    foreach(LoggerDestination* dest, d->destList)
+    {
+        if (!dest)
+        {
+            assert(!"null log destination");
+            continue;
+        }
+
+        dest->setAlwaysFlush(state);
+    }
+}
+
+void Logger::setPopupTitleBody(const char* title, const char* body)
+{
+    d->popupTitle = title;
+    d->popupBody = body;
+}
+
+void Logger::setFatalTitleBody(const char* title, const char* body)
+{
+    d->fatalTitle = title;
+    d->fatalBody = body;
+}
+
+void Logger::Helper::sprintfMe(const char* cformat, ...)
+{
+    char *buff;
+
+    va_list ap;
     va_start(ap, cformat);
-        buffer.vsprintf(cformat, ap);
+    vasprintf(&buff, cformat, ap);
     va_end(ap);
+
+    buffer = buff;
+    free(buff);
 }
 
 //! creates the complete log message and passes it to the logger
@@ -218,38 +265,55 @@ void Logger::Helper::writeToLog()
         buffer.remove(0, 1).chop(2);
     }
 
+    if (buffer.endsWith("\n"))
+    {
+        buffer.chop(1);
+    }
+
     if (level == LOG_POPUP)
     {
         QMessageBox msgBox(
             QMessageBox::Warning,
-            "Warzone has detected a problem.",
-            QString("A non fatal error has occurred.\n\n%1\n\n").arg(buffer)
+            logger.d->popupTitle,
+            QString(logger.d->popupBody).arg(buffer)
         );
         msgBox.exec();
     }
-    else
+    else if(level == LOG_FATAL)
     {
-        logger.write(logger.d->levelNames.at(level), function, buffer);
+        QMessageBox msgBox(
+            QMessageBox::Critical,
+            logger.d->fatalTitle,
+            QString(logger.d->fatalBody).arg(buffer)
+        );
+        msgBox.exec();
     }
+
+    logger.write(logger.d->levelNames.at(level), function, buffer);
 }
 
 Logger::Helper::~Helper()
 {
-    try
+    writeToLog();
+}
+
+void Logger::write(const QString &message)
+{
+    QMutexLocker lock(&d->logMutex);
+    foreach(LoggerDestination* d, d->destList)
     {
-        writeToLog();
-    }
-    catch(std::exception& e)
-    {
-        // you shouldn't throw exceptions from a sink
-        Q_UNUSED(e);
-        assert(!"exception in logger helper destructor!");
-        throw;
+        if (!d)
+        {
+            assert(!"null log destination");
+            continue;
+        }
+
+        d->write(message);
     }
 }
 
 //! sends the message to all the destinations
-void Logger::write(const QString& level, const QString& function, const QString& message)
+void Logger::write(const QString &level, const QString &function, const QString &message)
 {
     QString output;
 
@@ -301,11 +365,11 @@ void Logger::write(const QString& level, const QString& function, const QString&
         output = QString("%1 |%2: %3 %4")
             .arg(level, -8)
             .arg(QDateTime::currentDateTime().toString(fmtDateTime))
-            .arg(QString("[%1]").arg(function), -20)
+            .arg(QString("[%1]").arg(function), -25)
             .arg(output);
 
         QMutexLocker lock(&d->logMutex);
-        foreach(Destination* dest, d->destList)
+        foreach(LoggerDestination* dest, d->destList)
         {
             if (!dest)
             {
@@ -324,11 +388,11 @@ void Logger::write(const QString& level, const QString& function, const QString&
         output = QString("%1 |%2: %3 %4")
             .arg(level, -8)
             .arg(QDateTime::currentDateTime().toString(fmtDateTime))
-            .arg(QString("[%1]").arg(function), -20)
+            .arg(QString("[%1]").arg(function), -25)
             .arg(message);
 
         QMutexLocker lock(&d->logMutex);
-        foreach(Destination* dest, d->destList)
+        foreach(LoggerDestination* dest, d->destList)
         {
             if (!dest)
             {

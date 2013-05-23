@@ -16,7 +16,7 @@
 #include <qjson/parser.h>
 
 // WzLog
-#include <lib/WzLog/Log.h>
+#include <lib/WzLog/Logger.h>
 
 namespace Imagemap {
 
@@ -246,12 +246,12 @@ const QString& Map::errorString()
   return d->m_errorString;
 }
 
-const int Map::errorCode()
+int Map::errorCode()
 {
   return d->m_errorCode;
 }
 
-const int Map::errorLine()
+int Map::errorLine()
 {
   return d->m_errorLine;
 }

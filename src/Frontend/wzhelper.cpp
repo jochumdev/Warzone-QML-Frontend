@@ -1,394 +1,144 @@
+/*
+	This file is part of Warzone 2100.
+	Copyright (C) 2011  Warzone 2100 Project
+
+	Warzone 2100 is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	Warzone 2100 is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with Warzone 2100; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+// Self
 #include "wzhelper.h"
 
+// Qt Core
 #include "QtCore/QVariant"
 #include "QtCore/QString"
-#include "QtCore/QSettings"
 
-// libc
-#include <libintl.h>
+// Configuration
+#include <src/Core/confighandler.h>
 
-// WzLog
-#include <lib/WzLog/Log.h>
+// LOG_FRONTEND and availableResolutions
+#include "wzqmlview.h"
 
-// Map list
-#include <Core/Map/map.h>
+// framework - Logger and i18n
+#include <src/Core/Framework/frame.h>
 
-using namespace Frontend;
+namespace Frontend {
 
-const int LOG_FRONTEND = WzLog::Logger::instance().addLoggingLevel("frontend", false);
-
-/**
- * Ment to be removed when integrated into warzone.
- */
-WzHelper::WzHelper(const QString &configfile)
+WzHelper::WzHelper(WzQMLView* qmlview):
+		QObject(qmlview),
+		m_view(qmlview),
+		m_maplist(new Map::List)
 {
-    m_settings = new QSettings(configfile, QSettings::IniFormat);
-    if (m_settings->status() != QSettings::NoError)
-    {
-        qFatal("Failed to read config file %s", configfile.toUtf8().constData());
-    }
 }
 
-Q_INVOKABLE void WzHelper::log(const QString& message)
+WzHelper::~WzHelper()
 {
-    wzLog(LOG_FRONTEND) << message;
+	delete m_maplist;
 }
 
-Q_INVOKABLE QString WzHelper::tr(const QString& text, const QString &domain)
+void WzHelper::logVariant(const QVariant &message)
 {
-    if (domain.isNull())
-    {
-        return QString::fromUtf8(dgettext(NULL, text.toUtf8().constData()));
-    }
-    else
-    {
-        return QString::fromUtf8(dgettext(domain.toUtf8().constData(),
-                                          text.toUtf8().constData()));
-    }
-
+	wzLog(LOG_FRONTEND) << message;
 }
 
-Q_INVOKABLE QString WzHelper::tr(const QString& singular, const QString &plural, int n, const QString &domain)
+void WzHelper::log(const QString &message)
 {
-    if (domain.isNull())
-    {
-        return QString::fromUtf8(dngettext(NULL,
-                                 singular.toUtf8().constData(),
-                                 plural.toUtf8().constData(), n));
-    }
-    else
-    {
-        return QString::fromUtf8(dngettext(domain.toUtf8().constData(),
-                                           singular.toUtf8().constData(),
-                                           plural.toUtf8().constData(), n));
-    }
+	wzLog(LOG_FRONTEND) << message;
 }
 
-Q_INVOKABLE QVariantMap WzHelper::getMapList(int techLevel)
+QString WzHelper::tr(const QString& text)
 {
-    switch (techLevel)
-    {
-        case 1:
-            return Map::getList(Map::GAMETYPE_SKIRMISH_T1);
-        break;
-        case 2:
-            return Map::getList(Map::GAMETYPE_SKIRMISH_T2);
-        break;
-        case 3:
-            return Map::getList(Map::GAMETYPE_SKIRMISH_T3);
-        break;
-    }
-
-    return Map::getList(Map::GAMETYPE_SKIRMISH_T1);
+	return QString::fromUtf8(_(text.toUtf8().constData()));
 }
 
-Q_INVOKABLE void WzHelper::loadMap(const QString &path)
+QVariantMap WzHelper::getMapList(int mapType)
 {
-    Map::loadMap(path);
+	if (mapType < 0)
+	{
+		wzLog(LOG_FRONTEND) << "Invalid mapType:" << mapType;
+		return QVariantMap();
+	}
+
+	QList<Map::Map*> list = m_maplist->getList();
+	QVariantMap result;
+
+#ifdef DEBUG
+	wzLog(LOG_FRONTEND) << "Finding maps for type:" << mapType;
+#endif
+	for (int i = 0; i < list.size(); ++i)
+	{
+		Map::Map* map = list.at(i);
+		if (map->supportsType(mapType))
+		{
+#ifdef DEBUG
+			wzLog(LOG_FRONTEND) << "\t" << map->getName() << map->supportedTypes();
+#endif
+			result.insert(map->getName(), map->getMaxPlayers());
+		}
+	}
+
+	return result;
 }
 
-/**
- * This would normaly call one of the thousands setters Warzone has.
- */
-Q_INVOKABLE void WzHelper::setConfigValue(const QString& name, const QVariant& value)
+int WzHelper::setMap(int mapType, QString name)
 {
-    wzLog(LOG_FRONTEND) << "Setting:" << name << "=" << value.toString();
-
-    // START: Audio Options
-    if (name == "voicevol")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "fxvol")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "cdvol")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-
-    // START: Graphics Options
-    else if (name == "fullscreen")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "resolution")
-    {
-        QStringList wh = value.toString().split(" x ");
-        m_settings->setValue("width", wh[0].toInt());
-        m_settings->setValue("height", wh[1].toInt());
-    }
-    else if (name == "textureSize")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "vsync")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "fsaa")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-
-    // START: Game Options
-    else if (name == "difficulty")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "scroll")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "colour")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "language")
-    {
-        m_settings->setValue(name, value);
-    }
-    else if (name == "rotateRadar")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-
-    // START: Video Options
-    else if (name == "FMVmode")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "scanlines")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "shake")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "visfog")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "subtitles")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "shadows")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-
-    // START: Mouse Options
-    else if (name == "mouseflip")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "trapCursor")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "RightClickOrders")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "MiddleClickRotate")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-
-    // START: Hostgame Screen
-    else if (name == "gameName")
-    {
-        m_settings->setValue(name, value.toString());
-    }
-    else if (name == "mapName")
-    {
-        m_settings->setValue(name, value.toString());
-    }
-    else if (name == "maxPlayers")
-    {
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "power")
-    {
-        // 400 = Low, 700 = Medium, 1000 = High
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "base")
-    {
-        // 0 = No, 1 = Medium, 2 = Full
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "fog")
-    {
-        m_settings->setValue(name, value.toBool());
-    }
-    else if (name == "alliance")
-    {
-        // 0 = No, 1 = Yes, 2 = Fixed
-        m_settings->setValue(name, value.toInt());
-    }
-    else if (name == "playerName")
-    {
-        m_settings->setValue(name, value.toString());
-    }
-
-
-    else
-    {
-        wzLog(LOG_ERROR) << "Unknown config value" << name;
-    }
+	if (mapType < 0)
+	{
+		wzLog(LOG_FRONTEND) << "Invalid mapType:" << mapType;
+		return 0;
+	}
+	return m_maplist->setMap(mapType, name);
 }
 
-/**
- * This would normaly call one of the thousands getters Warzone has.
- */
-Q_INVOKABLE const QVariant WzHelper::getConfigValue(const QString& name)
+QString WzHelper::getCurrentResolution()
 {
-    // START: Audio Options
-    if (name == "voicevol")
-    {
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "fxvol")
-    {
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "cdvol")
-    {
-        return m_settings->value(name).toInt();
-    }
-
-    // START: Graphics Options
-    else if (name == "fullscreen")
-    {
-        return m_settings->value(name).toBool();
-    }
-    else if (name == "resolution")
-    {
-        return QString("%1 x %2").arg(m_settings->value("width").toString()).arg(m_settings->value("height").toString());
-    }
-    else if (name == "textureSize")
-    {
-        return m_settings->value(name).toString();
-    }
-    else if (name == "vsync")
-    {
-        return m_settings->value(name).toBool();
-    }
-    else if (name == "fsaa")
-    {
-        return m_settings->value(name).toInt();
-    }
-
-    // START: Game Options
-    else if (name == "difficulty")
-    {
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "scroll")
-    {
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "colour")
-    {
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "language")
-    {
-        return m_settings->value(name);
-    }
-    else if (name == "rotateRadar")
-    {
-        return m_settings->value(name).toBool();
-    }
-
-    // START: Video Options
-    else if (name == "FMVmode")
-    {
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "scanlines")
-    {
-        return m_settings->value(name).toBool();
-    }
-    else if (name == "shake")
-    {
-        return m_settings->value(name).toBool();
-    }
-    else if (name == "visfog")
-    {
-        return m_settings->value(name).toBool();
-    }
-    else if (name == "subtitles")
-    {
-        return m_settings->value(name).toBool();
-    }
-    else if (name == "shadows")
-    {
-        return m_settings->value(name).toBool();
-    }
-
-    // START: Mouse Options
-    else if (name == "mouseflip")
-    {
-         return m_settings->value(name).toBool();
-    }
-    else if (name == "trapCursor")
-    {
-         return m_settings->value(name).toBool();
-    }
-    else if (name == "RightClickOrders")
-    {
-         return m_settings->value(name).toBool();
-    }
-    else if (name == "MiddleClickRotate")
-    {
-         return m_settings->value(name).toBool();
-    }
-
-    // START: Hostgame Screen
-    else if (name == "gameName")
-    {
-        return m_settings->value(name).toString();
-    }
-    else if (name == "mapName")
-    {
-        return m_settings->value(name).toString();
-    }
-    else if (name == "maxPlayers")
-    {
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "power")
-    {
-        // 400 = Low, 700 = Medium, 1000 = High
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "base")
-    {
-        // 0 = No, 1 = Medium, 2 = Full
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "fog")
-    {
-        return m_settings->value(name).toBool();
-    }
-    else if (name == "alliance")
-    {
-        // 0 = No, 1 = Yes, 2 = Fixed
-        return m_settings->value(name).toInt();
-    }
-    else if (name == "playerName")
-    {
-        return m_settings->value(name, "Player").toString();
-    }
-
-    else
-    {
-        wzLog(LOG_ERROR) << "Unknown config value" << name;
-        return 0;
-    }
+	return QString("%1 x %2").arg(config.get("width").toInt())
+							 .arg(config.get("height").toInt());
 }
+
+QStringList WzHelper::getAvailableResolutions()
+{
+	if (!m_view)
+	{
+		return QStringList();
+	}
+
+	return m_view->getAvailableResolutions();
+}
+
+void WzHelper::setResolution(const QString& resolution)
+{
+	QStringList res = resolution.split(" x ");
+	if (res.size() != 2)
+	{
+		wzLog(LOG_FRONTEND) << "Invalid resolution" << resolution << "received.";
+		return;
+	}
+
+	config.set("width", res.at(0));
+	config.set("height", res.at(1));
+}
+
+QString WzHelper::getLanguage()
+{
+	return getLanguageName();
+}
+
+QString WzHelper::setNextLanguage()
+{
+	::setNextLanguage();
+	config.set("language", ::getLanguage());
+	return getLanguageName();
+}
+
+} // namespace Frontend {

@@ -24,27 +24,32 @@
 // OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef WZLOG_LOGGERDEST_H
-#define WZLOG_LOGGERDEST_H
+#ifndef __LIB_WZLOG_LOGGERDEST_H__
+#define __LIB_WZLOG_LOGGERDEST_H__
 
-#include <memory>
 #include <QtCore/QString>
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 
 namespace WzLog {
 
-class Destination
+class LoggerDestination
 {
 public:
-   virtual ~Destination(){}
-   virtual void write(const QString& message) = 0;
+    virtual ~LoggerDestination(){}
+    virtual void write(const QString& message) = 0;
+    void setAlwaysFlush(bool state = false)
+    {
+        alwaysFlush = state;
+    }
+protected:
+    bool alwaysFlush;
 };
 
-class FileDestination : public Destination
+class LoggerFileDestination : public LoggerDestination
 {
 public:
-   FileDestination(const QString& filePath);
+   LoggerFileDestination(const QString& filePath);
    void write(const QString& message);
 
 private:
@@ -52,7 +57,13 @@ private:
    QTextStream mOutputStream;
 };
 
-class DebugOutputDestination : public Destination
+class LoggerDebugOutputDestination : public LoggerDestination
+{
+public:
+   void write(const QString& message);
+};
+
+class LoggerWinDebugDestition: public LoggerDestination
 {
 public:
    void write(const QString& message);
@@ -60,4 +71,4 @@ public:
 
 } // namespace WzLog {
 
-#endif // WZLOG_LOGGERDEST_H
+#endif // __LIB_WZLOG_LOGGERDEST_H__

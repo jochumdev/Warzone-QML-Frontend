@@ -4,7 +4,7 @@
 #include <QtCore/QFile>
 
 // WzLog
-#include <lib/WzLog/Log.h>
+#include <lib/WzLog/Logger.h>
 
 using namespace Imagemap;
 

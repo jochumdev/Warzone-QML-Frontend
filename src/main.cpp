@@ -1,95 +1,101 @@
+// See QString docs for them.
+#define QT_USE_FAST_CONCATENATION
+#define QT_USE_FAST_OPERATOR_PLUS
+
+#include <src/Core/Framework/frame.h>
+
 #include <QtGui/QApplication>
 
-// WZ
 #include <QtCore/QTextCodec>
+#include <QtCore/QStringList>
 
 // WZ OpenGL
 #include <QtOpenGL/QGLWidget>
 
 // Logging
-#include <lib/WzLog/Log.h>
+#include <lib/WzLog/Logger.h>
 
-// QML Viewer
-#include <lib/Imagemap/loader.h>
-#include <QtDeclarative/QDeclarativeView>
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeContext>
-
+#include <Core/Map/map.h>
 #include <Core/Filesystem/filesystem.h>
 
 #include <Frontend/wzhelper.h>
-#include <Frontend/qmlimagemapprovider.h>
+#include <Frontend/wzqmlview.h>
+#include <Frontend/config.h>
 
-#include <Core/Map/map.h>
+/* Always use fallbacks on Windows */
+#if defined(WZ_OS_WIN)
+#  undef WZ_DATADIR
+#endif
 
-// See QString docs for them.
-#define QT_USE_FAST_CONCATENATION
-#define QT_USE_FAST_OPERATOR_PLUS
+#if !defined(WZ_DATADIR)
+#  define WZ_DATADIR "data"
+#endif
 
-// Test translations
-// #include <locale.h>
-// #include <libintl.h>
+#if defined(WZ_OS_WIN)
+# define WZ_WRITEDIR "Warzone 2100 master"
+#elif defined(WZ_OS_MAC)
+# define WZ_WRITEDIR "Warzone 2100 master"
+#else
+# define WZ_WRITEDIR ".warzone2100-master"
+#endif
 
 int main(int argc, char *argv[])
 {
+    // make Qt treat all C strings in QMLFrontend as UTF-8
+    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));	
+	
     QApplication app(argc, argv);
+	
+	// Sets a basic debugger up.
+	debug_init();
 
-    WzLog::init();
+	// Initializes default values for the configuration.
+	config_init();
+
+    // Create the logger instance and get a reference to it.
+    WzLog::Logger& logger = WzLog::Logger::instance();
+    logger.setLevelStatus(LOG_TRACE);
+
+    // Add a console output destination to the logger.
+    WzLog::LoggerDestination* debugDestination = new WzLog::LoggerDebugOutputDestination();
+    logger.addDestination(debugDestination);    
+
+    // Enable/Disable log components.
     WzLog::Logger::instance().setLevelStatus("fs", true);
-    WzLog::Logger::instance().setLevelStatus("imagemap", true);
+    WzLog::Logger::instance().setLevelStatus("imagemap", false);
     WzLog::Logger::instance().setLevelStatus("frontend", true);
     WzLog::Logger::instance().setLevelStatus("map", true);
+	WzLog::Logger::instance().setLevelStatus("config", true);
 
-    FileSystem::init(argv[0], ".warzone2100-master");
-    FileSystem::scanDataDirs();
+    if (!FileSystem::init(argv[0], WZ_WRITEDIR, config.get("configDir").toString())) {
+		return EXIT_FAILURE;
+	}
+	
+	if (!FileSystem::scanDataDirs(config.get("dataDir").toString(), WZ_DATADIR))
+	{
+		return EXIT_FAILURE;
+	}
 
-    // make Qt treat all C strings in Warzone as UTF-8
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+	// Its important this line is before ParseCommandLine as the user
+	// can override values by the cmd.
+	config.loadConfig("wz::config");
 
-    // From wz: setup opengl
-    QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);
-    QGLFormat format;
-    format.setDoubleBuffer(true);
-    format.setAlpha(true);
-    format.setSampleBuffers(true);
-    format.setSamples(8);
-    QGLWidget *glWidget = new QGLWidget(format);
-    if (!glWidget->isValid())
-    {
-        qFatal("Cannot create a GL Context!");
-    }
+	FileSystem::printSearchPath();
 
-    // Add data/frontend/images/imagemap.js to the imagemap loader
-    if (!Imagemap::Loader::instance().addImagemap("wz::frontend/images/imagemap.js"))
-    {
-        // abort() on errors.
-        qFatal("%s", qPrintable(Imagemap::Loader::instance().errorString()));
-    }
+	/*** Initialize translations ***/
+	initI18n();
+	wzLog(LOG_MAIN) << QString("Using language: %1").arg(getLanguage());
+	
+	// Now run the frontend
+	Frontend::WzQMLView view;
+	view.run();
+	
+    app.exec();
+	
+	config.storeConfig("wz::config", CONFCONTEXT_USER);
 
-    // Test translations
-//     setlocale(LC_MESSAGES, "fr");
-//     const char* dir = bindtextdomain("warzone2100", "/usr/local/share/locale");
-//     if (!dir)
-//     {
-//         qFatal("Binding gettext failed.");
-//     }
-//
-//     bind_textdomain_codeset("warzone2100", "UTF-8");
-//     textdomain("warzone2100");
+	FileSystem::exit();
+	debug_exit();
 
-    // Now setup the QML viewer
-    QDeclarativeView *view = new QDeclarativeView;
-    view->setViewport(glWidget);
-    view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-
-    Frontend::QMLImagemapProvider* improvider = new Frontend::QMLImagemapProvider();
-    view->engine()->addImageProvider("imagemap", improvider);
-
-    Frontend::WzHelper wzHelper("wz::config");
-    view->rootContext()->setContextProperty("wz", &wzHelper);
-
-    view->setSource(QUrl("wz::frontend/main.qml"));
-    view->show();
-
-    return app.exec();
+	return EXIT_SUCCESS;
 }

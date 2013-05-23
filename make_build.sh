@@ -7,9 +7,9 @@ BUILD="$1"
 if test -z ${BUILD}; then
     BUILD="Debug"
 fi
-#QMAKE="$(which qmake)"
+QMAKE="$(which qmake)"
 #QMAKE="/usr/local/Trolltech/Qt-4.7.4/bin/qmake"
-QMAKE="${HOME}/QtSDK/Desktop/Qt/473/gcc/bin/qmake"
+#QMAKE="${HOME}/QtSDK/Desktop/Qt/473/gcc/bin/qmake"
 
 BUILD_DIR="${MYPATH}/build"
 

@@ -31,8 +31,8 @@ namespace Imagemap {
 
         void freeError();
         const QString& errorString();
-        const int errorCode();
-        const int errorLine();
+        int errorCode();
+        int errorLine();
 
     private:
         Loader();

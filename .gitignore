@@ -12,5 +12,8 @@ cmake_install.cmake
 # Build
 build/
 
+# Python
+*.pyc
+
 # Needed just once
 data/config

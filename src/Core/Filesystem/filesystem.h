@@ -1,40 +1,43 @@
 /*
-    This file is part of Warzone 2100.
-    Copyright (C) 2011  Warzone 2100 Project
+	This file is part of Warzone 2100.
+	Copyright (C) 2011  Warzone 2100 Project
 
-    Warzone 2100 is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	Warzone 2100 is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    Warzone 2100 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
+	Warzone 2100 is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with Warzone 2100; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+	You should have received a copy of the GNU General Public License
+	along with Warzone 2100; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef CORE_FILESYSTEM_H
-#define CORE_FILESYSTEM_H
+#ifndef __SRC_CORE_FILESYSTEM_FILESYSTEM_H__
+#define __SRC_CORE_FILESYSTEM_FILESYSTEM_H__
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QHash>
 
-#include <Core/Filesystem/physfs_ext.h>
-
-namespace FileSystem {
+// Physfs + extensions.
+#include "physfs_ext.h"
 
 enum searchPathMode { mod_clean, mod_campaign, mod_multiplay, mod_override };
 
+extern const int LOG_FS;
+
+namespace FileSystem {
+
 enum GAMEMOD_TYPE
 {
-    GAMEMOD_GLOBAL,     // Mod for both multiplay and campaign games.
-    GAMEMOD_CAMPAIGN,   // Campaign only mod.
-    GAMEMOD_MULTIPLAY   // Multiplay only mod.
+	GAMEMOD_GLOBAL,	 // Mod for both multiplay and campaign games.
+	GAMEMOD_CAMPAIGN,   // Campaign only mod.
+	GAMEMOD_MULTIPLAY   // Multiplay only mod.
 };
 
 typedef QHash<QString, QString> MOD_LIST;
@@ -42,30 +45,37 @@ typedef QHash<QString, QString> MOD_LIST;
 /**
  * @brief Initalizes Physfs and creates the writedir.
  *
- * @param binpath       Application path - argv[0].
- * @param appSubDir     Subdirectory in platforms Userdir for the Physfs writedir.
- * @param cmdUserDir    User supplied userdir which overwrites the platform userdir and appSubDir.
+ * @param binpath	   Application path - argv[0].
+ * @param appSubDir	 Subdirectory in platforms Userdir for the Physfs writedir.
+ * @param userConfigdir Custom supplied config directory.
+ * @param userDataDir   Custom supplied data directory.
+ *
+ * @return Path to the config dir (empty on failure).
  */
-void init(const char* binpath, const char* appSubDir, const QString& cmdUserdir = QString());
+bool init(const QString &binpath, const char* appSubDir, const QString &userConfigDir = QString());
 
 /**
  * @brief Finds the application data and adds it to the search path.
  *
- * @param cmDataDir     User supplied data dir which overwrites ours.
+ * @param cmDataDir	 User supplied data dir which overwrites ours.
  * @param fallbackDir   ?
+ *
+ * @return Path to the data dir (empty on failure).
  */
-void scanDataDirs(const QString cmdDataDir = QString(), const QString fallbackDir = QString());
+bool scanDataDirs(const QString &cmdDataDir = QString(), const QString &fallbackDir = QString());
 
 /**
- * @brief Rebuilds the PHYSFS searchPath with mode specific subdirs
- *
- * Priority:
- * maps > mods > base > base.wz
- *
- * @param mode      The Mode to rebuild to either mod_campaign or mod_multiplay.
- * @param force     Ignoring the internal state, force a rebuild.
+ * @brief Cleanup stuff and deinitalize PHYSFS.
  */
-bool rebuildSearchPath( searchPathMode mode, bool force = false);
+void exit();
+
+/**
+ * @brief Clean the path, build to mode and (re)load its persistant mods.
+ *
+ * @param mode	  Mode to build to.
+ */
+void setSearchPathMode(searchPathMode mode);
+
 
 /**
  * @brief Loads all maps into the searchpath and sets the search mode to mod_multiplay.
@@ -74,18 +84,49 @@ void loadMaps();
 
 /**
  * @brief Appends the given map path to the search path, remove it with unloadMaps().
+ *
+ * @return Success/Failure.
  */
-void loadMap(const char *path);
+bool loadMap(const char *path);
+
+/**
+ * @brief Unload a previously loaded map.
+ *
+ * @return Success/Failure.
+ */
+bool unloadMap(const char *path);
 
 /**
  * @brief Unloads all maps from the searchpath and resets the search mode.
  */
 void unloadMaps();
 
-bool loadMod(GAMEMOD_TYPE type, const char* mod, bool reloadList = false);
+/**
+ * @brief Detects mods and loads them.
+ *
+ * @param type  Gametype (global, campaign or multiplay)
+ * @param mod   mod name (as example: old-1.10-balance.wz)
+ * @param reloadList Force a redetect.
+ *
+ * @return Success/Failure.
+ */
+bool loadMod(GAMEMOD_TYPE type, const QString& mod, bool reloadList = false);
+
+/**
+ * @brief Unloads all mods and reloads persistant mods.
+ */
 void unloadMods();
-const MOD_LIST& getLoadedMods();
+
+/**
+ * @brief Returns a list of mods.
+ */
+const QStringList getLoadedMods();
+
+/**
+ * @brief Prints the current search path (for debugging).
+ */
+void printSearchPath();
 
 } // namespace FileSystem {
 
-#endif //#ifndef CORE_FILESYSTEM_H
+#endif //#ifndef __SRC_CORE_FILESYSTEM_FILESYSTEM_H__
