@@ -26,7 +26,7 @@
 
 #include "frame.h"
 
-#include <QtGui/QMessageBox>
+#include <QtWidgets/QMessageBox>
 
 #include <string.h>
 #include <stdio.h>

@@ -15,5 +15,5 @@ BUILD_DIR="${MYPATH}/build"
 
 cd ${MYPATH}
 /usr/bin/cmake -H${MYPATH} -B${BUILD_DIR} -DCMAKE_BUILD_TYPE=${BUILD} -DQT_QMAKE_EXECUTABLE=${QMAKE}
-make -C ${BUILD_DIR} -j4 VERBOSE=1 all
+make -C ${BUILD_DIR} -j8 VERBOSE=1 all
 cd ${OLDPATH}

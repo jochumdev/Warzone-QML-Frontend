@@ -27,9 +27,9 @@
 #ifndef __LIB_WZLOG_LOGGERDEST_H__
 #define __LIB_WZLOG_LOGGERDEST_H__
 
-#include <QtCore/QString>
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
+#include <QString>
+#include <QFile>
+#include <QTextStream>
 
 namespace WzLog {
 

@@ -13,10 +13,11 @@
 #include <QtCore/QFileInfo>
 
 // QJson
-#include <qjson/parser.h>
+#include <QJsonParseError>
+#include <QJsonDocument>
 
 // WzLog
-#include <lib/WzLog/Logger.h>
+#include <WzLog/Logger.h>
 
 namespace Imagemap {
 
@@ -47,17 +48,18 @@ Map::Map(const QString &filename) :
         return;
     }
 
-    QJson::Parser parser;
-    bool ok = false;
-    QVariantMap result = parser.parse(&file, &ok).toMap();
-    if (!ok) {
-        setError(1, QString("Failed to load imagemap %1, error %2 on line %3")
+    QByteArray rawJson = file.readAll();
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(rawJson, &error);
+    if (error.error != QJsonParseError::NoError) {
+        setError(1, QString("Failed to load imagemap %1, error %2 on offset %3")
                     .arg(filename)
-                    .arg(parser.errorString())
-                    .arg(parser.errorLine()));
+                    .arg(error.errorString())
+                    .arg(error.offset));
         return;
     }
 
+    QVariantMap result = doc.toVariant().toMap();
     if (result.isEmpty())
     {
         setError(1, QString("Empty Map %1").arg(filename));

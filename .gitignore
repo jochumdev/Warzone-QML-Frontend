@@ -9,6 +9,12 @@ cmake_install.cmake
 *.kdev4
 *~
 
+# QtCreator
+CMakeLists.txt.user
+
+# VS Code
+.vscode/
+
 # Build
 build/
 

@@ -8,7 +8,7 @@
 #include <QtSvg/QSvgRenderer>
 
 // WzLog
-#include <lib/WzLog/Logger.h>
+#include <WzLog/Logger.h>
 
 using namespace Imagemap;
 

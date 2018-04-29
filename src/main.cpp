@@ -4,7 +4,7 @@
 
 #include <src/Core/Framework/frame.h>
 
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 
 #include <QtCore/QTextCodec>
 #include <QtCore/QStringList>
@@ -42,7 +42,7 @@
 int main(int argc, char *argv[])
 {
     // make Qt treat all C strings in QMLFrontend as UTF-8
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));	
+    // QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 	
     QApplication app(argc, argv);
 	

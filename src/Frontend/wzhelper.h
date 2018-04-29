@@ -30,7 +30,7 @@
 #include <QtCore/QString>
 
 // QML_DECLARE_TYPE Macro
-#include <QtDeclarative/qdeclarative.h>
+#include <QtQml/QtQml>
 
 // Map List
 #include <src/Core/Map/map.h>

@@ -25,7 +25,7 @@
 #define __SRC_LAUNCHER_WZQMLVIEW_H__
 
 // Qt Declarative
-#include <QtDeclarative/QDeclarativeView>
+#include <QtQuick/QQuickView>
 
 extern const int LOG_FRONTEND;
 
@@ -35,12 +35,12 @@ namespace Frontend {
 class WzHelper;
 
 class WzQMLViewPrivate;
-class WzQMLView : public QDeclarativeView
+class WzQMLView : public QQuickView
 {
 	Q_OBJECT
 
 public:
-	explicit WzQMLView(QWidget* parent = 0);
+    explicit WzQMLView(QWindow* parent = 0);
 	virtual ~WzQMLView();
 
 	void run(const QString mainScreen = QString(), const QString mainMenu = QString());

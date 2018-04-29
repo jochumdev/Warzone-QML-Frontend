@@ -24,6 +24,7 @@
 // Qt Core
 #include <QtCore/QtEndian>
 #include <QtCore/QFile>
+#include <QDataStream>
 
 // QT Network
 #if !defined(NO_SSL)
@@ -31,8 +32,7 @@
 #endif
 
 // QJson
-#include <qjson/parser.h>
-#include <qjson/serializer.h>
+#include <QJsonDocument>
 
 // Logging
 #include <lib/WzLog/Logger.h>
@@ -307,16 +307,10 @@ Client& Client::addCACertificate(const QString& path)
     }
 
     QSslCertificate certificate(&cafile, QSsl::Pem);
-    if (!certificate.isValid())
-    {
-        wzLog(LOG_ERROR) << QString("Failed to load the CA certificate %1!")
-                                    .arg(path);
-        return *this;
-    }
     cafile.close();
 
     wzLog(LOG_NET) << QString("Cert common name: %1")
-                        .arg(certificate.subjectInfo(QSslCertificate::CommonName));
+                        .arg(certificate.subjectInfo(QSslCertificate::CommonName)[0]);
 
     cacerts_.append(certificate);
 
@@ -521,13 +515,18 @@ RETURN_CODES Client::call_(const char* command, const QVariantMap& kwargs)
     // Debug - needs QtCore/QDebug
     //qDebug() << call;
 
-    QJson::Serializer serializer;
-
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
+    out.setVersion(QDataStream::Qt_5_6);
     out.setByteOrder(QDataStream::BigEndian);
-    out << serializer.serialize(call);
+
+    QJsonDocument doc = QJsonDocument::fromVariant(call);
+    if (doc.isNull())
+    {
+        wzLog(LOG_ERROR) << QString("Failed convert the args to JSON.");
+        return setError_(TRANSPORT_ERROR, _("Failed convert the args to JSON."));
+    }
+    out << doc.toJson(QJsonDocument::Compact);
 
     if (socket_->write(block) == -1)
     {
@@ -538,7 +537,7 @@ RETURN_CODES Client::call_(const char* command, const QVariantMap& kwargs)
 
     quint32 blockSize;
     QDataStream in(socket_);
-    in.setVersion(QDataStream::Qt_4_0);
+    in.setVersion(QDataStream::Qt_5_6);
     in.setByteOrder(QDataStream::BigEndian);
     while (socket_->bytesAvailable() < sizeof(quint16))
     {
@@ -568,15 +567,16 @@ RETURN_CODES Client::call_(const char* command, const QVariantMap& kwargs)
     QByteArray jsonData(buffer, blockSize);
     delete buffer;
 
-    QJson::Parser parser;
-    bool ok;
-    QVariantMap result = parser.parse(jsonData, &ok).toMap();
-    if (!ok)
-    {
-        wzLog(LOG_ERROR) << QString("Received an invalid JSON Object, line %1, error: %2")
-                                    .arg(parser.errorLine()).arg(parser.errorString());
+    QJsonParseError inerror;
+    QJsonDocument indoc = QJsonDocument::fromJson(jsonData, &inerror);
+    if (inerror.error != QJsonParseError::NoError) {
+        wzLog(LOG_ERROR) << QString("Received an invalid JSON Object, offset %1, error: %2")
+                            .arg(inerror.offset)
+                            .arg(inerror.errorString());
         return setError_(INVALID_DATA, _("Failed to communicate with the lobby."));
     }
+
+    QVariantMap result = indoc.toVariant().toMap();
 
     // Debug - needs QtCore/QDebug
     // qDebug() << result;
@@ -588,7 +588,7 @@ RETURN_CODES Client::call_(const char* command, const QVariantMap& kwargs)
     }
 
     QVariantList resultList = result["reply"].toList();
-    if (!resultList.size() == 3)
+    if (resultList.size() != 3)
     {
         wzLog(LOG_ERROR) << QString("Received an invalid Answer %1 number of list args instead of 3")
                                     .arg(resultList.size());

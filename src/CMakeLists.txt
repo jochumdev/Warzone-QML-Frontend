@@ -9,18 +9,19 @@ file(GLOB_RECURSE qmlfrontendHeaders "*.h" "*.hpp")
 
 SET(qmlfrontend_SRCS main.cpp ${qmlfrontendSources})
 
-INCLUDE_DIRECTORIES(${QMLFRONTEND_INCLUDES} ${PHYSFS_INCLUDE_DIR} ${qtgame_INCLUDES})
+INCLUDE_DIRECTORIES(${QMLFRONTEND_INCLUDES} ${PHYSFS_INCLUDE_DIR})
 
-QT4_WRAP_CPP(QMLFRONTEND_MOC_FILES ${qmlfrontendHeaders})
+QT5_WRAP_CPP(QMLFRONTEND_MOC_FILES ${qmlfrontendHeaders})
 
 ADD_EXECUTABLE(viewer ${qmlfrontend_SRCS} ${QMLFRONTEND_MOC_FILES})
 TARGET_LINK_LIBRARIES(viewer wzlog
                              imagemap
                              ${PHYSFS_LIBRARY}
-                             ${QT_QTCORE_LIBRARY}
-                             ${QT_QTGUI_LIBRARY}
-                             ${QT_QTSVG_LIBRARY}
-                             ${QT_QTDECLARATIVE_LIBRARY}
-                             ${QT_QTNETWORK_LIBRARY}
-                             ${QT_QTOPENGL_LIBRARY}
-                             ${QJSON_LIBRARIES})
+                             ${Qt5Core_LIBRARIES}
+                             ${Qt5Gui_LIBRARIES}
+                             ${Qt5Widgets_LIBRARIES}
+                             ${Qt5Svg_LIBRARIES}
+                             ${Qt5Qml_LIBRARIES}
+                             ${Qt5Quick_LIBRARIES}
+                             ${Qt5Network_LIBRARIES}
+                             ${Qt5OpenGL_LIBRARIES})

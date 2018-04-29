@@ -42,14 +42,14 @@
 #include <src/Core/confighandler.h>
 
 // Qt Gui for the quit signal.
-#include <QtGui/QApplication>
+#include <QGuiApplication>
 
 // Qt Declarative
 
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeContext>
+#include <QQmlEngine>
+#include <QQmlContext>
 
-#include <QtGui/QGraphicsView>
+#include <QQuickView>
 #include <QtOpenGL/QGLWidget>
 
 const int LOG_FRONTEND = WzLog::Logger::instance().addLoggingLevel("frontend", false);
@@ -70,8 +70,8 @@ public:
 };
 
 
-WzQMLView::WzQMLView(QWidget *parent)
-	: QDeclarativeView(parent)
+WzQMLView::WzQMLView(QWindow *parent)
+    : QQuickView(parent)
 {
 	d = new WzQMLViewPrivate();
 	wzhelper = new WzHelper(this);
@@ -89,7 +89,7 @@ void WzQMLViewPrivate::init()
 	wzLog(LOG_FRONTEND) << "Setting up the viewport.";
 
 	// Workaround for incorrect text rendering on nany platforms.
-	QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);
+    // QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);
 	
 	QGLFormat format;
 	format.setDoubleBuffer(true);
@@ -128,9 +128,11 @@ void WzQMLViewPrivate::init()
 
 void WzQMLView::run(const QString loadScreen, const QString loadMenu)
 {
+    wzLog(LOG_FRONTEND) << engine()->importPathList();
+
 	wzLog(LOG_FRONTEND) << "set viewport";
-	setViewport(d->viewPort);
-	setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    //setViewport(d->viewPort);
+    setResizeMode(QQuickView::SizeRootObjectToView);
 
 	wzLog(LOG_FRONTEND) << "call engine";
 	engine()->addImageProvider("imagemap", d->improvider);
@@ -140,7 +142,7 @@ void WzQMLView::run(const QString loadScreen, const QString loadMenu)
 	wzLog(LOG_FRONTEND) << "execute";
 	setSource(QUrl("wz::frontend/main.qml"));
 
-	QObject::connect(engine(), SIGNAL(quit()), QApplication::instance(), SLOT(quit()));
+    QObject::connect(engine(), SIGNAL(quit()), QGuiApplication::instance(), SLOT(quit()));
 
 	if (!loadScreen.isEmpty())
 	{
@@ -175,8 +177,8 @@ void WzQMLView::run(const QString loadScreen, const QString loadMenu)
 	else
 	{
 		show();
-		setMinimumSize(w, h);
-		setMaximumSize(w, h);
+//		setMinimumSize(w, h);
+//		setMaximumSize(w, h);
 	}
 }
 

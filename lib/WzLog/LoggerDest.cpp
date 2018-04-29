@@ -22,9 +22,9 @@
 #include "LoggerDest.h"
 
 // QT
-#include <QtCore/QString>
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
+#include <QString>
+#include <QFile>
+#include <QTextStream>
 
 // Platform specific console output
 #if defined(Q_OS_WIN)

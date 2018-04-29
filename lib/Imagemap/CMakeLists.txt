@@ -2,8 +2,6 @@ IF("${CMAKE_BUILD_TYPE}" MATCHES "^Debug")
 ADD_DEFINITIONS("-DIMAGEMAP_DEBUG")
 ENDIF("${CMAKE_BUILD_TYPE}" MATCHES "^Debug")
 
-find_package(QJSON REQUIRED)
-
 SET(imagemap_INCLUDES ${QJSON_INCLUDE_DIR})
 SET(imagemap_SOURCES "containerimage.cpp"
                      "containersvg.cpp"
@@ -11,8 +9,9 @@ SET(imagemap_SOURCES "containerimage.cpp"
                      "loader.cpp"
                      "map.cpp")
 
-SET(imagemap_LIBRARIES ${QT_QTSVG_LIBRARY}
-                       ${QJSON_LIBRARIES})
+SET(imagemap_LIBRARIES ${Qt5Svg_LIBRARIES})
 
-INCLUDE_DIRECTORIES(${QMLFRONTEND_INCLUDES})
+INCLUDE_DIRECTORIES("../"
+                    ${Qt5Core_INCLUDE_DIRS}
+                    ${Qt5Svg_INCLUDE_DIRS})
 ADD_LIBRARY(imagemap STATIC ${imagemap_SOURCES})

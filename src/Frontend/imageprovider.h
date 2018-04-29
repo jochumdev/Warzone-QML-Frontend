@@ -29,7 +29,7 @@
 #define LAUNCHER_QMLIMAGEPROVIDER_H
 
 #include <QtCore/QHash>
-#include <QtDeclarative/QDeclarativeImageProvider>
+#include <QtQuick/QQuickImageProvider>
 
 namespace Imagemap {
 	class Map;
@@ -38,11 +38,11 @@ class QPixmap;
 
 namespace Frontend {
 
-class ImagemapProvider : public QDeclarativeImageProvider
+class ImagemapProvider : public QQuickImageProvider
 {
 public:
 	ImagemapProvider()
-		: QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap)
+        : QQuickImageProvider(QQuickImageProvider::Pixmap)
 	{
 	}
 

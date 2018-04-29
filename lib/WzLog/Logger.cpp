@@ -29,7 +29,7 @@
 #include <QtCore/QDebug>
 
 // LOG_POUP
-#include <QtGui/QMessageBox>
+#include <QtWidgets/QMessageBox>
 
 // stdlib
 #include <cassert>
