@@ -107,7 +107,7 @@ Item {
     {
         selectorModel.clear()
 
-        if (type == "playerColor")
+        if (type === "playerColor")
         {
             for (var i=0; i<8;i++)
             {
@@ -139,14 +139,14 @@ Item {
 
             // Now check if all players are in the same team and disable that one
             // if required.
-            var check = (playerIndex == 0 ? playersModel.get(1).team : playersModel.get(0).team)
+            var check = (playerIndex === 0 ? playersModel.get(1).team : playersModel.get(0).team)
             for (var i=0; i<playersModel.count;i++)
             {
-                if (i == playerIndex)
+                if (i === playerIndex)
                 {
                     continue
                 }
-                else if (check == playersModel.get(i).team)
+                else if (check === playersModel.get(i).team)
                 {
                     continue
                 }
@@ -157,14 +157,14 @@ Item {
                 }
             }
 
-            if (check != -1)
+            if (check !== -1)
             {
                 selectorModel.setProperty(check, "off", true);
             }
 
             // Configure and enable the kick button
             if (!playersModel.get(playerIndex).isAI &&
-                playerIndex != wz.config.get("playerIndex") &&
+                playerIndex !== wz.config.get("playerIndex") &&
                 wz.config.get("isHost"))
             {
                 container._kickPlayer = playerIndex
@@ -187,11 +187,11 @@ Item {
      */
     function setPlayerProperty(type, playerIndex, propertyNum)
     {
-        if (type == "playerColor")
+        if (type === "playerColor")
         {
             for (var i=0;i<playersModel.count;i++)
             {
-                if (playersModel.get(i).playerColor == propertyNum)
+                if (playersModel.get(i).playerColor === propertyNum)
                 {
                     playersModel.setProperty(i, type, playersModel.get(playerIndex).playerColor)
                     break
@@ -257,7 +257,7 @@ Item {
             border.color: "#0015f0"
             border.width: 1
 
-            opacity: (wz.config.get("gameType") == Wz.Multiplayer ? 1 : 0)
+            opacity: (wz.config.get("gameType") === Wz.Multiplayer ? 1 : 0)
 
             Text {
                 anchors.fill: parent
@@ -420,7 +420,7 @@ Item {
                     slotSelector.opacity = 0
                     playersModel.move(oldIndex, slotIndex, 1)
 
-                    if (hostGameScreen.playerIndex == oldIndex)
+                    if (hostGameScreen.playerIndex === oldIndex)
                     {
                         wz.config.set("playerIndex", slotIndex)
                     }
@@ -456,7 +456,7 @@ Item {
         {
             slotSelectorModel.append({slotIndex: i,
                                       oldIndex: oldIndex,
-                                      takeAble: i != oldIndex})
+                                      takeAble: i !== oldIndex})
         }
         slotSelector.opacity = 1
     }
@@ -469,7 +469,7 @@ Item {
         playersModel.append({isAI: false, team: 0, playerColor: 0, name: wz.config.get("playerName"), isReady: false, isHost: true, isOpen: false,
                             statsPlayed: 0, statsWins: 0, statsLosses: 0, statsTotalKills: 0, statsTotalScore: 0});
 
-        if (!wz.config.get("gameType") == Wz.Multiplayer)
+        if (!wz.config.get("gameType") === Wz.Multiplayer)
         {
             for(var i=1;i<hostGameScreen.maxPlayers;i++)
             {

@@ -24,9 +24,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QHash>
 
-// Physfs + extensions.
-#include "physfs_ext.h"
-
 enum searchPathMode { mod_clean, mod_campaign, mod_multiplay, mod_override };
 
 extern const int LOG_FS;

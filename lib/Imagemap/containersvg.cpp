@@ -20,7 +20,12 @@ ContainerSVG::ContainerSVG(Map *map, const QString &filename) :
         m_map->setError(1, "File does not exists.");
     }
 
-    m_renderer = new QSvgRenderer(m_filename);
+    QFile file(m_filename);
+    file.open(QIODevice::ReadOnly);
+    QByteArray data = file.readAll();
+    file.close();
+
+    m_renderer = new QSvgRenderer(data);
     m_size = m_renderer->defaultSize();
 
 #ifdef IMAGEMAP_DEBUG

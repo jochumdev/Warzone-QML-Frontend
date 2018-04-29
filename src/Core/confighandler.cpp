@@ -31,6 +31,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVariantMap>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 
 //Logger
 #include <lib/WzLog/Logger.h>
@@ -89,7 +90,7 @@ bool ConfigHandler::loadConfig(const QString& filename)
 {
 	wzLog(LOG_CONFIG) << "Loading config:" << filename;
 
-	QSettings configfile(filename, QSettings::IniFormat);
+    QSettings configfile(filename, QSettings::IniFormat);
 
 	foreach(QString key, configfile.childKeys())
 	{
@@ -117,12 +118,14 @@ bool ConfigHandler::storeConfig(const QString& filename, CONFIGCONTEXT context)
 	}
 
 	QSettings configfile(filename, QSettings::IniFormat);
+    // configfile.setAtomicSyncRequired(false);
 
 	for (QVariantMap::iterator it = config.begin();
 		 it != config.end(); ++it)
 	{
 		configfile.setValue(it.key(), it.value());
 	}
+    // configfile.sync();
 
 	return true;
 }

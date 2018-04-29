@@ -52,7 +52,7 @@ Item {
             options: [wz.tr("Fullscreen"), "1X", "2X"]
             value: {
                 var tmp = wz.config.get("FMVmode");
-                (tmp == 0 ? 0 : options.indexOf(tmp+"X"))
+                (tmp === 0 ? 0 : options.indexOf(tmp+"X"))
             }
             onValueChanged: wz.config.set("fsaa", (value == 0 ? 0 : options[value].substr(0, options[value].length-1)))
         }

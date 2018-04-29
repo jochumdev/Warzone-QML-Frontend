@@ -257,7 +257,6 @@
 */
 
 #if defined(_WIN32_X11_)
-#  define WZ_WS_X11
 
 #elif defined(WZ_OS_WIN32)
 #  define WZ_WS_WIN32
@@ -278,8 +277,6 @@
 #  define WZ_WS_QNX
 
 #elif defined(WZ_OS_UNIX)
-#  define WZ_WS_X11
-
 #else
 #  error "Warzone has not been tested on this window system. Please contact warzone-dev@gna.org"
 #endif /* WZ_WS_x */

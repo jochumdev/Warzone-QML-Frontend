@@ -33,7 +33,7 @@ Image {
         }
         catch(e) { wz.log("Failed to load screen: " + name); return; }
 
-        if (window._subComponent.status == Component.Loading)
+        if (window._subComponent.status === Component.Loading)
         {
             window._subComponent.statusChanged.connect(_createItem);
         }
@@ -45,7 +45,7 @@ Image {
 
     function _createItem()
     {
-        if (window._subComponent == null || window._subComponent.status == Component.Error) {
+        if (window._subComponent === null || window._subComponent.status === Component.Error) {
             wz.log(window._subComponent.errorString());
             return;
         }

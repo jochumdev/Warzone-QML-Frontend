@@ -25,7 +25,7 @@ Item {
 
         hostGameScreen.maxPlayers = players;
 
-        if (updateList != false) {
+        if (updateList !== false) {
             updateMapList();
         }
     }
@@ -41,7 +41,7 @@ Item {
 
         hostGameScreen.techlevel = level;
 
-        if (updateList != false) {
+        if (updateList !== false) {
             updateMapList();
         }
     }
@@ -55,7 +55,7 @@ Item {
         for (var mapname in maps)
         {
             var mapdata = maps[mapname];
-            if (hostGameScreen.maxPlayers == 0 || mapdata == hostGameScreen.maxPlayers)
+            if (hostGameScreen.maxPlayers === 0 || mapdata === hostGameScreen.maxPlayers)
             {
                 mapModel.append({"name": mapname, "players2": mapdata});
             }
@@ -65,15 +65,15 @@ Item {
     Component.onCompleted: {
         rightSideText.text = wz.tr("Select Map")
 
-		if (hostGameScreen.techlevel == Wz.Techlevel_1)
+        if (hostGameScreen.techlevel === Wz.Techlevel_1)
 		{
 			setTechLevel(_t1, Wz.Techlevel_1, false);
 		}
-		else if (hostGameScreen.techlevel == Wz.Techlevel_2)
+        else if (hostGameScreen.techlevel === Wz.Techlevel_2)
 		{
 			setTechLevel(_t1, Wz.Techlevel_2, false);
 		}
-		else if (hostGameScreen.techlevel == Wz.Techlevel_3)
+        else if (hostGameScreen.techlevel === Wz.Techlevel_3)
 		{
 			setTechLevel(_t1, Wz.Techlevel_3, false);
 		}
@@ -160,7 +160,7 @@ Item {
             text: name
             players: players2
             onClicked: {
-                if (wz.setMap(hostGameScreen.techlevel, name) == 0)
+                if (wz.setMap(hostGameScreen.techlevel, name) === 0)
                 {
                     wz.log("Failed to load map: " + name + ", techlevel: " + hostGameScreen.techlevel);
                 }

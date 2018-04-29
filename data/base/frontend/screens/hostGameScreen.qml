@@ -31,7 +31,7 @@ Item {
     property variant    _subScreen
 
     Component.onCompleted: {
-        _alliance = wz.config.get("alliance") == 1 ? true : false
+        _alliance = wz.config.get("alliance") === 1 ? true : false
 
         map = wz.config.get("mapName")
         techlevel = wz.config.get("techlevel")
@@ -58,7 +58,7 @@ Item {
         }
         catch(e) { wz.log("Failed to create hostgame subwidget: " + name); return; }
 
-        if (hostGameScreen._subComponent.status == Component.Loading)
+        if (hostGameScreen._subComponent.status === Component.Loading)
         {
             hostGameScreen._subComponent.statusChanged.connect(_createSubMenu);
         }
@@ -73,8 +73,8 @@ Item {
      */
     function _createSubMenu()
     {
-        if (hostGameScreen._subComponent == null ||
-            hostGameScreen._subComponent.status == Component.Error)
+        if (hostGameScreen._subComponent === null ||
+            hostGameScreen._subComponent.status === Component.Error)
         {
             wz.log(hostGameScreen._subComponent.errorString());
             return;
@@ -111,7 +111,7 @@ Item {
             onClicked: {
                 if (!hostGameScreen._isHosting) {
                     hostGameScreen.destroy();
-                    if (wz.config.get("gameType") == Wz.Multiplayer)
+                    if (wz.config.get("gameType") === Wz.Multiplayer)
                     {
                         createScreen("screens/multiplayer.qml")                        
                     }
@@ -123,7 +123,7 @@ Item {
                 } else {
                     hostGameScreen._subScreen.destroy();
 
-                    if (wz.config.get("gameType") == Wz.Multiplayer) {
+                    if (wz.config.get("gameType") === Wz.Multiplayer) {
                         passwordButton.state = ""
                         passwordInput.state = ""
                         hostnameInput.state = ""
@@ -166,7 +166,7 @@ Item {
                 hostGameScreen._isHosting = true
                 createMenu("hostGame/players.qml")
                 chatBox.clear()
-                if (wz.config.get("gameType") == Wz.Multiplayer) {
+                if (wz.config.get("gameType") === Wz.Multiplayer) {
                     chatBox.addSystemMessage("You'r game is not listed. This is a dummy, haha!")
                 }
             }
@@ -183,8 +183,8 @@ Item {
                 maximumLength: 14
 
                 onAccepted: {
-                    if (wz.config.get("playerName") != text) {
-                        if (wz.config.get("gameType") == Wz.Multiplayer) {
+                    if (wz.config.get("playerName") !== text) {
+                        if (wz.config.get("gameType") === Wz.Multiplayer) {
                             chatBox.addLine(wz.config.get("playerName") + " -> " + text);
                         }
 
@@ -214,9 +214,9 @@ Item {
             Widgets.SingleLineEdit {
                 id: hostnameInput
 
-                text: (wz.config.get("gameType") == Wz.Multiplayer ? wz.config.get("gameName") : wz.tr("One-Player Skirmish"))
+                text: (wz.config.get("gameType") === Wz.Multiplayer ? wz.config.get("gameName") : wz.tr("One-Player Skirmish"))
 
-                state: (wz.config.get("gameType") == Wz.Multiplayer ? "" : "off")
+                state: (wz.config.get("gameType") === Wz.Multiplayer ? "" : "off")
             }
             Widgets.SingleLineEdit {
                 id: mapInput
@@ -248,7 +248,7 @@ Item {
                 id: passwordInput
                 text: wz.tr("Enter password here")
 
-                state: (wz.config.get("gameType") == Wz.Multiplayer ? "" : "off")
+                state: (wz.config.get("gameType") === Wz.Multiplayer ? "" : "off")
 
                 Widgets.ImageButton {
                     id: passwordButton
@@ -265,7 +265,7 @@ Item {
                     activeSourceWidth: 22
                     activeSourceHeight: 22
 
-                    state: (wz.config.get("gameType") == Wz.Multiplayer ? "" : "off")
+                    state: (wz.config.get("gameType") === Wz.Multiplayer ? "" : "off")
 
                     onClicked: {
                         defaultSource: "image://imagemap/icon lock on"
@@ -289,7 +289,7 @@ Item {
                     image2Active: "image://imagemap/button active"
 
                     state: wz.config.get("scavengers") ? 2 : 1
-                    onStateChanged: state == 2 ? wz.config.set("scavengers", true) : wz.config.set("scavengers", false)
+                    onStateChanged: state === 2 ? wz.config.set("scavengers", true) : wz.config.set("scavengers", false)
                 }
             }
             Widgets.SingleLineEdit {
@@ -306,7 +306,7 @@ Item {
                     image2Active: "image://imagemap/button active"
 
                     state: wz.config.get("fog") ? 2 : 1
-                    onStateChanged: state == 2 ? wz.config.set("fog", true) : wz.config.set("fog", false)
+                    onStateChanged: state === 2 ? wz.config.set("fog", true) : wz.config.set("fog", false)
                 }
             }
             Widgets.SingleLineEdit {
@@ -328,7 +328,7 @@ Item {
                     state: wz.config.get("alliance") + 1
                     onStateChanged: {
                         wz.config.set("alliance", state - 1)
-                        state == 2 ? hostGameScreen._alliance = true : false
+                        state === 2 ? hostGameScreen._alliance = true : false
                     }
                 }
             }
@@ -366,7 +366,7 @@ Item {
                         }
                     }
                     onStateChanged: {
-                        wz.config.set("power", (state == 1 ? 400 : (state == 2 ? 700 : 1000)))
+                        wz.config.set("power", (state === 1 ? 400 : (state === 2 ? 700 : 1000)))
                     }
                 }
             }

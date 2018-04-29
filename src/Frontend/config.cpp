@@ -45,7 +45,7 @@ void config_init()
 	config.add("scanlines",				CONFTYPE_ENUM,			true,	0,		SCANLINES_BLACK);
 	config.add("pauseOnFocus",			CONFTYPE_BOOL,			false,	false);
 
-	config.add("MiddleClickRotate",	CONFTYPE_BOOL,			true,	true);
+    config.add("MiddleClickRotate",     CONFTYPE_BOOL,			true,	true);
 	config.add("PauseOnFocusLoss",		CONFTYPE_BOOL,			true,	true);
 	config.add("RightClickOrders",		CONFTYPE_BOOL,			true,	true);
 	config.add("UPnP",					CONFTYPE_BOOL,			true,	true);

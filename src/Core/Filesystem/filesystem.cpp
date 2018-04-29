@@ -20,7 +20,8 @@
 // Self
 #include <Core/Filesystem/filesystem.h>
 
-// "wz::" handler
+#include <Core/Filesystem/file.h>
+// "wz:/" handler
 #include <Core/Filesystem/qphysfsenginehandler.h>
 
 // QT
@@ -55,8 +56,9 @@ static searchPathMode currentSearchMode = mod_clean;
 // To remember the last used searchpath when detecting maps.
 static searchPathMode lastSearchMode = mod_clean;
 
-// Registers the "wz::" Filesystem handler.
-QPhysfsEngineHandler qPhysfsEngine("wz::");
+// Registers the "wz:/" Filesystem handler.
+const char* QPhysfsEngineHandler::scheme = "wz:/";
+QPhysfsEngineHandler physfsengine;
 
 // Priority range for mods in searchPathRegistry.
 const int PRIORITY_MOD_MIN = 100;
@@ -129,11 +131,13 @@ bool init(const QString &binpath, const char* appSubDir, const QString &cmdUserC
 	if (!PHYSFS_setWriteDir(tmpdir.toUtf8().constData()))
 	{
 		wzLog(LOG_FATAL) << QString("Error setting write directory to \"%1\": %2")
-			.arg(tmpdir).arg(PHYSFS_getLastError());
+            .arg(tmpdir).arg(WZ_PHYSFS_getLastError());
 		return false;
-	}
+    } else {
+        wzLog(LOG_FS) << QString("WriteDir is now: '%1'").arg(tmpdir);
+    }
 
-	PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), PHYSFS_PREPEND);
+    WZ_PHYSFS_mount(PHYSFS_getWriteDir(), PHYSFS_PREPEND);
 
 	return true;
 }
@@ -235,7 +239,7 @@ bool scanDataDirs(const QString &cmdDataDir, const QString &fallbackDir)
 #endif
 
 	/** Debugging and sanity checks **/
-	printSearchPath();
+    printSearchPath();
 
 	if (PHYSFS_exists("gamedesc.lev"))
 	{
@@ -292,7 +296,7 @@ void printSearchPath()
 	searchPath = PHYSFS_getSearchPath();
 	for (i = searchPath; *i != NULL; i++)
 	{
-		wzLog(LOG_FS) << QString("	[%1]").arg(*i);
+        wzLog(LOG_FS) << QString("    [%1]").arg(*i);
 	}
 	PHYSFS_freeList(searchPath);
 }
@@ -324,7 +328,7 @@ static void addSubdirs(const QString& basedir, const char* subdir, const bool ap
 			wzLog(LOG_NEVER) << QString("Adding [%1] to search path").arg(tmpstr);
 #endif // DEBUG
 
-			PHYSFS_addToSearchPath(tmpstr.toUtf8().constData(), appendToPath);
+            WZ_PHYSFS_mount(tmpstr.toUtf8().constData(), appendToPath);
 		}
 	}
 	PHYSFS_freeList(subdirlist);
@@ -343,7 +347,7 @@ static void removeSubdirs(const QString& basedir, const char* subdir)
 			wzLog(LOG_NEVER) << QString("Removing [%1] from search path").arg(tmpstr);
 		#endif
 
-		PHYSFS_removeFromSearchPath(tmpstr.toUtf8().constData());
+        WZ_PHYSFS_unmount(tmpstr.toUtf8().constData());
 		i++;
 	}
 	PHYSFS_freeList(subdirlist);
@@ -395,26 +399,26 @@ static bool rebuildSearchPath( searchPathMode mode, bool force)
 				// Remove multiplay patches
 				tmpstr = path;
 				tmpstr += "mp";
-				PHYSFS_removeFromSearchPath(tmpstr.toUtf8().constData());
+                WZ_PHYSFS_unmount(tmpstr.toUtf8().constData());
 				tmpstr = path;
 				tmpstr += "mp.wz";
-				PHYSFS_removeFromSearchPath(tmpstr.toUtf8().constData());
+                WZ_PHYSFS_unmount(tmpstr.toUtf8().constData());
 
 				// Remove plain dir
-				PHYSFS_removeFromSearchPath(path.toUtf8().constData());
+                WZ_PHYSFS_unmount(path.toUtf8().constData());
 
 				// Remove base files
 				tmpstr = path;
 				tmpstr += "base";
-				PHYSFS_removeFromSearchPath(tmpstr.toUtf8().constData());
+                WZ_PHYSFS_unmount(tmpstr.toUtf8().constData());
 				tmpstr = path;
 				tmpstr += "base.wz";
-				PHYSFS_removeFromSearchPath(tmpstr.toUtf8().constData());
+                WZ_PHYSFS_unmount(tmpstr.toUtf8().constData());
 
 				// remove video search path as well
 				tmpstr = path;
 				tmpstr += "sequences.wz";
-				PHYSFS_removeFromSearchPath(tmpstr.toUtf8().constData());
+                WZ_PHYSFS_unmount(tmpstr.toUtf8().constData());
 			} // foreach(QString path, searchPathRegistry)
 			break;
 
@@ -434,7 +438,7 @@ static bool rebuildSearchPath( searchPathMode mode, bool force)
 			{
 				tmpstr = path;
 				tmpstr += "sequences.wz";
-				PHYSFS_addToSearchPath(tmpstr.toUtf8().constData(), PHYSFS_APPEND);
+                WZ_PHYSFS_mount(tmpstr.toUtf8().constData(), PHYSFS_APPEND);
 			}
 
 			foreach(QString path, searchPathRegistry)
@@ -444,10 +448,10 @@ static bool rebuildSearchPath( searchPathMode mode, bool force)
 				#endif
 
 				// Add global and campaign mods
-				PHYSFS_addToSearchPath(path.toUtf8().constData(), PHYSFS_APPEND);
+                WZ_PHYSFS_mount(path.toUtf8().constData(), PHYSFS_APPEND);
 				addSubdirs(path, "mods/music", PHYSFS_APPEND);
 				addSubdirs(path, "mods/autoload", PHYSFS_APPEND);
-				if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
+                if (!PHYSFS_unmount(path.toUtf8().constData()))
 				{
 					wzLog(LOG_FS) << QString("Failed to remove path %1 again").arg(path);
 				}
@@ -483,8 +487,8 @@ static bool rebuildSearchPath( searchPathMode mode, bool force)
 	}
 
 	// User's home dir must be first so we allways see what we write
-	PHYSFS_removeFromSearchPath(PHYSFS_getWriteDir());
-	PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), PHYSFS_PREPEND);
+    WZ_PHYSFS_unmount(PHYSFS_getWriteDir());
+    WZ_PHYSFS_mount(PHYSFS_getWriteDir(), PHYSFS_PREPEND);
 
 	return true;
 }
@@ -541,7 +545,7 @@ void loadMaps()
 		addSubdirs(path, "maps", PHYSFS_APPEND);
 		if (QString(PHYSFS_getWriteDir()) != path)
 		{
-			if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
+            if (!WZ_PHYSFS_unmount(path.toUtf8().constData()))
 			{
 				wzLog(LOG_FS) << QString("Failed to remove path %1 again").arg(path);
 			}
@@ -549,8 +553,8 @@ void loadMaps()
 	}
 
 	// User's home dir must be first so we allways see what we write
-	PHYSFS_removeFromSearchPath(PHYSFS_getWriteDir());
-	PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), PHYSFS_PREPEND);
+    WZ_PHYSFS_unmount(PHYSFS_getWriteDir());
+    WZ_PHYSFS_mount(PHYSFS_getWriteDir(), PHYSFS_PREPEND);
 }
 
 bool loadMap(const char *path)
@@ -564,7 +568,7 @@ bool loadMap(const char *path)
 
 bool unLoadMap(const char *path)
 {
-	return PHYSFS_removeFromSearchPath(path) == 0;
+    return WZ_PHYSFS_unmount(path) == 0;
 }
 
 
@@ -575,7 +579,7 @@ void unloadMaps()
 	{
 		PHYSFS_mount(path.toUtf8().constData(), NULL, PHYSFS_APPEND);
 		removeSubdirs(path, "maps");
-		if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
+        if (!WZ_PHYSFS_unmount(path.toUtf8().constData()))
 		{
 			wzLog(LOG_FS) << QString("Failed to remove path %1 again").arg(path);
 		}
@@ -646,7 +650,7 @@ static void findAvailableMods(bool forceReload)
 
 	foreach(QString path, searchPathRegistry)
 	{
-		if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
+        if (!WZ_PHYSFS_unmount(path.toUtf8().constData()))
 		{
 			wzLog(LOG_FS) << QString("Failed to remove path %1 again").arg(path);
 		}
@@ -694,7 +698,7 @@ void unloadMods()
 {
 	foreach(QString path, mods_loaded)
 	{
-		if (!PHYSFS_removeFromSearchPath(path.toUtf8().constData()))
+        if (!WZ_PHYSFS_unmount(path.toUtf8().constData()))
 		{
 			wzLog(LOG_FS) << QString("Failed to remove mod %1 again").arg(path);
 		}

@@ -9,9 +9,6 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QStringList>
 
-// WZ OpenGL
-#include <QtOpenGL/QGLWidget>
-
 // Logging
 #include <lib/WzLog/Logger.h>
 
@@ -21,6 +18,7 @@
 #include <Frontend/wzhelper.h>
 #include <Frontend/wzqmlview.h>
 #include <Frontend/config.h>
+#include <physfs.h>
 
 /* Always use fallbacks on Windows */
 #if defined(WZ_OS_WIN)
@@ -62,6 +60,7 @@ int main(int argc, char *argv[])
 
     // Enable/Disable log components.
     WzLog::Logger::instance().setLevelStatus("fs", true);
+    WzLog::Logger::instance().setLevelStatus("fs", true);
     WzLog::Logger::instance().setLevelStatus("imagemap", false);
     WzLog::Logger::instance().setLevelStatus("frontend", true);
     WzLog::Logger::instance().setLevelStatus("map", true);
@@ -76,9 +75,9 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	// Its important this line is before ParseCommandLine as the user
+    // Its important this line is before ParseCommandLine as the user
 	// can override values by the cmd.
-	config.loadConfig("wz::config");
+    config.loadConfig(PHYSFS_getWriteDir() + QString("config"));
 
 	FileSystem::printSearchPath();
 
@@ -92,7 +91,7 @@ int main(int argc, char *argv[])
 	
     app.exec();
 	
-	config.storeConfig("wz::config", CONFCONTEXT_USER);
+    config.storeConfig(PHYSFS_getWriteDir() + QString("config"));
 
 	FileSystem::exit();
 	debug_exit();

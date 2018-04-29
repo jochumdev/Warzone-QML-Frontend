@@ -31,7 +31,7 @@ Item {
         }
         catch(e) { wz.log("Failed to load menu: " + file); return; }
 
-        if (menuScreen._subComponent.status == Component.Loading)
+        if (menuScreen._subComponent.status === Component.Loading)
         {
             menuScreen._subComponent.statusChanged.connect(_createSubMenu);
         }
@@ -46,8 +46,8 @@ Item {
      */
     function _createSubMenu()
     {
-        if (menuScreen._subComponent == null ||
-            menuScreen._subComponent.status == Component.Error)
+        if (menuScreen._subComponent === null ||
+            menuScreen._subComponent.status === Component.Error)
         {
             wz.log(menuScreen._subComponent.errorString());
             return;

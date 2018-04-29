@@ -50,7 +50,11 @@
 #include <QQmlContext>
 
 #include <QQuickView>
-#include <QtOpenGL/QGLWidget>
+
+#ifdef WZ_WS_X11
+#   include <QX11Info>
+#   include <X11/extensions/Xrandr.h>
+#endif
 
 const int LOG_FRONTEND = WzLog::Logger::instance().addLoggingLevel("frontend", false);
 
@@ -59,13 +63,12 @@ namespace Frontend {
 class WzQMLViewPrivate
 {
 public:
-	WzQMLViewPrivate() :
-		viewPort(0), improvider(0) {}
+    WzQMLViewPrivate() :
+        improvider(0) {}
 
 	void init();
 
-	QGLWidget* viewPort;
-	ImagemapProvider* improvider;
+    ImagemapProvider* improvider;
 	QStringList resolutions;
 };
 
@@ -86,36 +89,9 @@ WzQMLView::~WzQMLView()
 
 void WzQMLViewPrivate::init()
 {
-	wzLog(LOG_FRONTEND) << "Setting up the viewport.";
-
-	// Workaround for incorrect text rendering on nany platforms.
-    // QGL::setPreferredPaintEngine(QPaintEngine::OpenGL);
-	
-	QGLFormat format;
-	format.setDoubleBuffer(true);
-	format.setAlpha(true);
-
-	if (config.get("FSAA").toInt())
-	{
-		format.setSampleBuffers(true);
-		format.setSamples(config.get("FSAA").toInt());
-		// Enable VSync
-		format.setSwapInterval(true);
-	}
-
-	viewPort = new QGLWidget();
-	viewPort->setFormat(format);
-	
-	if (!viewPort->context()->isValid())
-	{
-		wzLog(LOG_FATAL) << "Failed to create an OpenGL context.\n"
-							<< "This probably means that your graphics drivers are out of date.\n"
-							<< "Try updating them!";
-	}
-
 	wzLog(LOG_FRONTEND) << "Loading the imagemaps.";
 	// Add data/frontend/images/imagemap.js to the imagemap loader
-	if (!Imagemap::Loader::instance().addImagemap("wz::frontend/images/imagemap.js"))
+    if (!Imagemap::Loader::instance().addImagemap("wz:/frontend/images/imagemap.js"))
 	{
 		wzLog(LOG_FATAL) << "Failed to load Imagemap: frontend/images/imagemap.js!";
 		qFatal("%s", qPrintable(Imagemap::Loader::instance().errorString()));
@@ -128,19 +104,11 @@ void WzQMLViewPrivate::init()
 
 void WzQMLView::run(const QString loadScreen, const QString loadMenu)
 {
-    wzLog(LOG_FRONTEND) << engine()->importPathList();
-
-	wzLog(LOG_FRONTEND) << "set viewport";
-    //setViewport(d->viewPort);
     setResizeMode(QQuickView::SizeRootObjectToView);
 
-	wzLog(LOG_FRONTEND) << "call engine";
 	engine()->addImageProvider("imagemap", d->improvider);
-
 	rootContext()->setContextProperty("wz", wzhelper);
-
-	wzLog(LOG_FRONTEND) << "execute";
-	setSource(QUrl("wz::frontend/main.qml"));
+    setSource(QUrl("wz:/frontend/main.qml"));
 
     QObject::connect(engine(), SIGNAL(quit()), QGuiApplication::instance(), SLOT(quit()));
 
@@ -177,17 +145,28 @@ void WzQMLView::run(const QString loadScreen, const QString loadMenu)
 	else
 	{
 		show();
-//		setMinimumSize(w, h);
-//		setMaximumSize(w, h);
+        setMinimumHeight(h);
+        setMinimumWidth(w);
 	}
 }
 
 const QStringList& WzQMLView::getAvailableResolutions() const
 {
-// 	if (!d->resolutions.isEmpty())
-// 	{
-// 		return d->resolutions;
-// 	}
+    if (!d->resolutions.isEmpty())
+    {
+        return d->resolutions;
+    }
+
+#ifdef Q_OS_UNIX
+    XRRScreenConfiguration *config = XRRGetScreenInfo(QX11Info::display(), RootWindow(QX11Info::display(), QX11Info::appScreen()));
+    int sizeCount = 0;
+    XRRScreenSize *sizes = XRRSizes(QX11Info::display(), 0, &sizeCount);
+    for (int i = 0; i < sizeCount; i++)
+    {
+        d->resolutions.append(QString("%1 x %2").arg(sizes[i].width).arg(sizes[i].height));
+    }
+    XRRFreeScreenConfigInfo(config);
+#endif
 // 
 // 	QList<QSize> res(d->viewPort->availableResolutions());
 // 
